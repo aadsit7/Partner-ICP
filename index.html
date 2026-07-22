@@ -3,909 +3,1127 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recast Partner ICP Intelligence Engine</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>Recast Partner ICP Intelligence</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        /* ============================================
+           APPLE DESIGN SYSTEM — TOKENS
+           ============================================ */
         :root {
-            --recast-navy: #0A1628;
-            --recast-dark: #0D1B2A;
-            --recast-blue: #1B3A5C;
-            --recast-accent: #00D4AA;
-            --recast-accent-light: #00F5C4;
-            --recast-gold: #FFD700;
-            --recast-orange: #FF6B35;
-            --recast-red: #E63946;
-            --recast-surface: #111D2E;
-            --recast-surface-light: #1A2A3E;
-            --recast-border: #1E3A5F;
-            --recast-text: #E8EDF3;
-            --recast-text-muted: #8B9DB8;
-            --recast-text-dim: #5A6E8A;
-            --recast-gradient-start: #00D4AA;
-            --recast-gradient-end: #00A8E8;
-            --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
-            --shadow-md: 0 4px 12px rgba(0,0,0,0.4);
-            --shadow-lg: 0 8px 32px rgba(0,0,0,0.5);
-            --shadow-glow: 0 0 20px rgba(0,212,170,0.15);
+            /* Neutrals */
+            --ink: #1D1D1F;
+            --gray: #6E6E73;
+            --gray-light: #86868B;
+            --hairline: #D2D2D7;
+            --card: #F5F5F7;
+            --bg: #FFFFFF;
+
+            /* Accent */
+            --blue: #007AFF;
+            --blue-dark: #005BB5;
+            --blue-tint: rgba(0,122,255,0.08);
+            --green: #34C759;
+            --orange: #FF9500;
+            --red: #FF3B30;
+
+            /* Shape & space */
+            --radius-card: 14px;
+            --radius-tile: 24%;
+            --radius-pill: 980px;
+            --radius-input: 12px;
+            --space-1: 8px;
+            --space-2: 16px;
+            --space-3: 24px;
+            --space-4: 40px;
+            --space-5: 64px;
+            --content-max: 1200px;
+
+            /* Typography */
+            --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: var(--recast-navy);
-            color: var(--recast-text);
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--ink);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            line-height: 1.5;
         }
 
-        .bg-mesh {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: 
-                radial-gradient(ellipse at 20% 20%, rgba(0,212,170,0.03) 0%, transparent 50%),
-                radial-gradient(ellipse at 80% 80%, rgba(27,58,92,0.2) 0%, transparent 50%),
-                radial-gradient(ellipse at 50% 50%, rgba(0,168,232,0.02) 0%, transparent 50%);
-            pointer-events: none; z-index: 0;
+        /* ============================================
+           TYPOGRAPHY
+           ============================================ */
+        .page-headline {
+            font-size: 42px;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            color: var(--ink);
+            line-height: 1.1;
         }
 
-        .bg-grid {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(0,212,170,0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0,212,170,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none; z-index: 0;
+        .section-headline {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--ink);
+            letter-spacing: -0.01em;
         }
 
-        .header {
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            background: rgba(10,22,40,0.85);
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--recast-border);
-            padding: 0 32px;
-            height: 64px;
-            display: flex; align-items: center; justify-content: space-between;
+        .kicker {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: var(--space-1);
+        }
+
+        .body-text {
+            font-size: 16px;
+            font-weight: 400;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        .caption {
+            font-size: 13px;
+            color: var(--gray-light);
+            font-weight: 400;
+        }
+
+        .label {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* ============================================
+           LAYOUT
+           ============================================ */
+        .app-shell {
+            max-width: var(--content-max);
+            margin: 0 auto;
+            padding: 0 var(--space-3);
+        }
+
+        /* Header */
+        .site-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: saturate(180%) blur(20px);
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .site-header-inner {
+            max-width: var(--content-max);
+            margin: 0 auto;
+            padding: 0 var(--space-3);
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .header-brand {
-            display: flex; align-items: center; gap: 12px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
         }
 
-        .header-logo {
-            width: 36px; height: 36px;
-            background: linear-gradient(135deg, var(--recast-gradient-start), var(--recast-gradient-end));
-            border-radius: 10px;
-            display: flex; align-items: center; justify-content: center;
-            font-weight: 800; font-size: 14px; color: var(--recast-navy);
+        .header-logo-tile {
+            width: 36px;
+            height: 36px;
+            border-radius: var(--radius-tile);
+            background: var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 800;
+            font-size: 15px;
+        }
+
+        .header-title-group {
+            display: flex;
+            flex-direction: column;
         }
 
         .header-title {
-            font-size: 16px; font-weight: 700;
-            background: linear-gradient(90deg, var(--recast-text), var(--recast-accent));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1.2;
         }
 
         .header-subtitle {
-            font-size: 11px; color: var(--recast-text-muted); font-weight: 500;
-            letter-spacing: 0.5px; text-transform: uppercase;
+            font-size: 12px;
+            color: var(--gray-light);
+            font-weight: 500;
         }
 
         .header-actions {
-            display: flex; align-items: center; gap: 12px;
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
         }
 
-        .header-btn {
-            padding: 8px 16px; border-radius: 8px; font-size: 13px; font-weight: 600;
-            cursor: pointer; border: none; transition: all 0.2s;
-            display: flex; align-items: center; gap: 6px;
+        /* Buttons */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 20px;
+            border-radius: var(--radius-pill);
+            font-size: 15px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            text-decoration: none;
         }
 
-        .header-btn-primary {
-            background: linear-gradient(135deg, var(--recast-gradient-start), var(--recast-gradient-end));
-            color: var(--recast-navy);
+        .btn-primary {
+            background: var(--blue);
+            color: white;
         }
 
-        .header-btn-primary:hover {
-            transform: translateY(-1px); box-shadow: var(--shadow-glow);
+        .btn-primary:hover {
+            background: var(--blue-dark);
         }
 
-        .header-btn-secondary {
-            background: var(--recast-surface-light); color: var(--recast-text);
-            border: 1px solid var(--recast-border);
+        .btn-secondary {
+            background: transparent;
+            color: var(--blue);
+            border: 1px solid var(--blue);
         }
 
-        .header-btn-secondary:hover {
-            background: var(--recast-border); border-color: var(--recast-accent);
+        .btn-secondary:hover {
+            background: var(--blue-tint);
         }
 
-        .connection-status {
-            display: flex; align-items: center; gap: 6px;
-            font-size: 12px; color: var(--recast-text-muted);
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 13px;
         }
 
-        .status-dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: var(--recast-accent);
-            box-shadow: 0 0 8px var(--recast-accent);
-            animation: pulse 2s infinite;
+        /* Main layout */
+        .main-layout {
+            display: flex;
+            gap: var(--space-4);
+            padding-top: var(--space-4);
+            padding-bottom: var(--space-5);
         }
 
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        .main-container {
-            margin-top: 64px; display: flex; min-height: calc(100vh - 64px);
-        }
-
+        /* Sidebar */
         .sidebar {
-            width: 280px; background: var(--recast-surface);
-            border-right: 1px solid var(--recast-border);
-            padding: 24px 20px;
-            position: fixed; height: calc(100vh - 64px);
-            overflow-y: auto; z-index: 100;
+            width: 260px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 80px;
+            align-self: flex-start;
         }
 
         .sidebar-section {
-            margin-bottom: 28px;
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--hairline);
         }
 
-        .sidebar-section-title {
-            font-size: 11px; font-weight: 700;
-            color: var(--recast-text-dim); text-transform: uppercase;
-            letter-spacing: 1px; margin-bottom: 12px;
+        .sidebar-section:last-child {
+            border-bottom: none;
         }
 
-        .filter-group {
-            margin-bottom: 16px;
+        .sidebar-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: var(--space-2);
         }
 
-        .filter-label {
-            font-size: 12px; font-weight: 600; color: var(--recast-text-muted);
-            margin-bottom: 6px; display: block;
+        .filter-select {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: var(--radius-input);
+            border: 1px solid var(--hairline);
+            background: white;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
-        .filter-select, .filter-input {
-            width: 100%; padding: 10px 12px;
-            background: var(--recast-surface-light);
-            border: 1px solid var(--recast-border);
-            border-radius: 8px; color: var(--recast-text);
-            font-size: 13px; font-family: inherit;
+        .filter-select:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+
+        .chip-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .chip {
+            padding: 6px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--hairline);
+            background: white;
+            color: var(--gray);
             transition: all 0.2s;
         }
 
-        .filter-select:focus, .filter-input:focus {
-            outline: none; border-color: var(--recast-accent);
-            box-shadow: 0 0 0 3px rgba(0,212,170,0.1);
+        .chip:hover {
+            border-color: var(--blue);
+            color: var(--blue);
         }
 
-        .filter-chip-group {
-            display: flex; flex-wrap: wrap; gap: 6px;
+        .chip.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
         }
 
-        .filter-chip {
-            padding: 6px 12px; border-radius: 20px;
-            font-size: 11px; font-weight: 600; cursor: pointer;
-            border: 1px solid var(--recast-border);
-            background: var(--recast-surface-light);
-            color: var(--recast-text-muted);
-            transition: all 0.2s;
+        .icp-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
         }
 
-        .filter-chip:hover, .filter-chip.active {
-            background: rgba(0,212,170,0.15);
-            border-color: var(--recast-accent);
-            color: var(--recast-accent);
-        }
-
-        .icp-score-card {
-            background: linear-gradient(135deg, rgba(0,212,170,0.1), rgba(0,168,232,0.05));
-            border: 1px solid rgba(0,212,170,0.2);
-            border-radius: 12px; padding: 16px;
-            margin-top: 8px;
-        }
-
-        .icp-score-value {
-            font-size: 32px; font-weight: 800;
-            background: linear-gradient(135deg, var(--recast-accent), var(--recast-gradient-end));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .icp-score-big {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
         }
 
         .icp-score-label {
-            font-size: 11px; color: var(--recast-text-muted); font-weight: 500;
+            font-size: 13px;
+            color: var(--gray-light);
+            margin-top: 4px;
         }
 
-        .icp-score-bar {
-            height: 6px; background: var(--recast-surface-light);
-            border-radius: 3px; margin-top: 8px; overflow: hidden;
+        .icp-bar-track {
+            height: 6px;
+            background: var(--hairline);
+            border-radius: 3px;
+            margin-top: 12px;
+            overflow: hidden;
         }
 
-        .icp-score-fill {
-            height: 100%; border-radius: 3px;
-            background: linear-gradient(90deg, var(--recast-accent), var(--recast-gradient-end));
+        .icp-bar-fill {
+            height: 100%;
+            background: var(--blue);
+            border-radius: 3px;
             transition: width 0.5s ease;
         }
 
+        /* Content area */
         .content {
-            margin-left: 280px; flex: 1; padding: 24px 32px;
-            max-width: calc(100% - 280px);
+            flex: 1;
+            min-width: 0;
         }
 
-        .search-section {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 16px; padding: 24px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
+        /* Search */
+        .search-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            margin-bottom: var(--space-3);
         }
 
         .search-tabs {
-            display: flex; gap: 4px; margin-bottom: 16px;
+            display: flex;
+            gap: 4px;
+            margin-bottom: var(--space-2);
         }
 
         .search-tab {
-            padding: 8px 20px; border-radius: 8px;
-            font-size: 13px; font-weight: 600; cursor: pointer;
-            border: none; background: transparent;
-            color: var(--recast-text-muted);
+            padding: 8px 18px;
+            border-radius: var(--radius-pill);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            color: var(--gray);
+            font-family: inherit;
             transition: all 0.2s;
         }
 
         .search-tab.active {
-            background: var(--recast-accent); color: var(--recast-navy);
+            background: var(--blue);
+            color: white;
         }
 
-        .search-tab:hover:not(.active) {
-            background: var(--recast-surface-light); color: var(--recast-text);
-        }
-
-        .search-input-wrapper {
+        .search-input-wrap {
             position: relative;
         }
 
         .search-input {
-            width: 100%; padding: 16px 20px 16px 52px;
-            background: var(--recast-surface-light);
-            border: 2px solid var(--recast-border);
-            border-radius: 12px; color: var(--recast-text);
-            font-size: 15px; font-family: inherit;
-            transition: all 0.2s;
+            width: 100%;
+            padding: 14px 18px 14px 44px;
+            border-radius: var(--radius-input);
+            border: 1px solid var(--hairline);
+            background: white;
+            font-family: inherit;
+            font-size: 16px;
+            color: var(--ink);
+            outline: none;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .search-input:focus {
-            outline: none; border-color: var(--recast-accent);
-            box-shadow: 0 0 0 4px rgba(0,212,170,0.1), var(--shadow-glow);
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
         }
 
-        .search-input::placeholder { color: var(--recast-text-dim); }
+        .search-input::placeholder { color: var(--gray-light); }
 
         .search-icon {
-            position: absolute; left: 18px; top: 50%; transform: translateY(-50%);
-            color: var(--recast-text-dim); font-size: 18px;
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-light);
+            font-size: 16px;
         }
 
-        .search-actions {
-            display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap;
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+            margin-top: var(--space-2);
+            flex-wrap: wrap;
         }
 
-        .search-action-btn {
-            padding: 8px 16px; border-radius: 8px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            border: 1px solid var(--recast-border);
-            background: var(--recast-surface-light);
-            color: var(--recast-text-muted);
+        .quick-filter {
+            padding: 6px 14px;
+            border-radius: var(--radius-pill);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            border: 1px solid var(--hairline);
+            background: white;
+            color: var(--gray);
+            font-family: inherit;
             transition: all 0.2s;
         }
 
-        .search-action-btn:hover {
-            border-color: var(--recast-accent); color: var(--recast-accent);
+        .quick-filter:hover {
+            border-color: var(--blue);
+            color: var(--blue);
         }
 
+        /* AI Panel */
         .ai-panel {
-            background: linear-gradient(135deg, rgba(0,212,170,0.05), rgba(0,168,232,0.03));
-            border: 1px solid rgba(0,212,170,0.15);
-            border-radius: 12px; padding: 20px;
-            margin-bottom: 24px; display: none;
+            display: none;
+            margin-bottom: var(--space-3);
         }
 
         .ai-panel.active { display: block; }
 
-        .ai-panel-header {
-            display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+        .ai-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+        }
+
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: var(--space-3);
         }
 
         .ai-badge {
-            padding: 4px 10px; border-radius: 6px;
-            background: linear-gradient(135deg, var(--recast-accent), var(--recast-gradient-end));
-            color: var(--recast-navy); font-size: 11px; font-weight: 800;
-            text-transform: uppercase; letter-spacing: 0.5px;
+            padding: 4px 10px;
+            border-radius: var(--radius-pill);
+            background: var(--blue);
+            color: white;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
         }
 
-        .ai-panel-title {
-            font-size: 14px; font-weight: 700;
+        .ai-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-2);
         }
 
-        .ai-insights {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 16px;
+        .ai-item {
+            background: white;
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            border: 1px solid var(--hairline);
         }
 
-        .ai-insight-card {
-            background: var(--recast-surface-light);
-            border: 1px solid var(--recast-border);
-            border-radius: 10px; padding: 16px;
+        .ai-item-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .ai-insight-header {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 10px;
-        }
-
-        .ai-insight-icon {
-            width: 28px; height: 28px; border-radius: 6px;
-            display: flex; align-items: center; justify-content: center;
+        .ai-item-body {
             font-size: 14px;
+            color: var(--gray);
+            line-height: 1.5;
         }
 
-        .ai-insight-title {
-            font-size: 13px; font-weight: 700; color: var(--recast-text);
-        }
-
-        .ai-insight-body {
-            font-size: 12px; color: var(--recast-text-muted); line-height: 1.6;
-        }
-
-        .map-section {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 16px; padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .section-header {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .section-title {
-            font-size: 16px; font-weight: 700;
-            display: flex; align-items: center; gap: 8px;
-        }
-
-        .section-badge {
-            padding: 3px 10px; border-radius: 20px;
-            font-size: 11px; font-weight: 700;
-            background: var(--recast-surface-light);
-            color: var(--recast-text-muted);
-            border: 1px solid var(--recast-border);
-        }
-
-        #partnerMap {
-            height: 400px; border-radius: 12px;
-            background: var(--recast-surface-light);
-        }
-
-        .results-grid {
+        /* Stats */
+        .stats-row {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-            gap: 20px; margin-bottom: 24px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
         }
 
-        .partner-card {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 16px; padding: 0;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            cursor: pointer;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .partner-card:hover {
-            transform: translateY(-4px);
-            box-shadow: var(--shadow-lg), var(--shadow-glow);
-            border-color: rgba(0,212,170,0.3);
-        }
-
-        .partner-card-header {
-            padding: 20px 20px 16px;
-            border-bottom: 1px solid var(--recast-border);
-            position: relative;
-        }
-
-        .partner-card-header::before {
-            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-            background: linear-gradient(90deg, var(--recast-accent), var(--recast-gradient-end));
-        }
-
-        .partner-card-top {
-            display: flex; align-items: flex-start; justify-content: space-between;
-            margin-bottom: 12px;
-        }
-
-        .partner-logo-placeholder {
-            width: 48px; height: 48px; border-radius: 12px;
-            background: linear-gradient(135deg, var(--recast-blue), var(--recast-surface-light));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 18px; font-weight: 800; color: var(--recast-accent);
-            border: 1px solid var(--recast-border);
-        }
-
-        .partner-tier-badge {
-            padding: 4px 12px; border-radius: 20px;
-            font-size: 11px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .tier-premier {
-            background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05));
-            color: var(--recast-gold); border: 1px solid rgba(255,215,0,0.3);
-        }
-
-        .tier-value {
-            background: linear-gradient(135deg, rgba(0,212,170,0.15), rgba(0,212,170,0.05));
-            color: var(--recast-accent); border: 1px solid rgba(0,212,170,0.3);
-        }
-
-        .tier-registered {
-            background: linear-gradient(135deg, rgba(90,110,138,0.15), rgba(90,110,138,0.05));
-            color: var(--recast-text-muted); border: 1px solid var(--recast-text-dim);
-        }
-
-        .partner-name {
-            font-size: 16px; font-weight: 700; margin-bottom: 4px;
-        }
-
-        .partner-type {
-            font-size: 12px; color: var(--recast-text-muted); font-weight: 500;
-        }
-
-        .partner-card-body {
-            padding: 16px 20px;
-        }
-
-        .partner-meta {
-            display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px;
-        }
-
-        .partner-meta-item {
-            display: flex; align-items: center; gap: 4px;
-            font-size: 11px; color: var(--recast-text-muted);
-            background: var(--recast-surface-light);
-            padding: 4px 10px; border-radius: 6px;
-            border: 1px solid var(--recast-border);
-        }
-
-        .partner-fit-score {
-            display: flex; align-items: center; gap: 12px;
-            margin-bottom: 12px; padding: 12px;
-            background: var(--recast-surface-light);
-            border-radius: 10px;
-        }
-
-        .fit-score-ring {
-            width: 48px; height: 48px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 14px; font-weight: 800;
-            position: relative;
-        }
-
-        .fit-score-ring::before {
-            content: ''; position: absolute; inset: 0; border-radius: 50%;
-            border: 3px solid var(--recast-border);
-        }
-
-        .fit-score-ring.high { color: var(--recast-accent); }
-        .fit-score-ring.high::before { border-color: var(--recast-accent); }
-        .fit-score-ring.medium { color: var(--recast-orange); }
-        .fit-score-ring.medium::before { border-color: var(--recast-orange); }
-        .fit-score-ring.low { color: var(--recast-red); }
-        .fit-score-ring.low::before { border-color: var(--recast-red); }
-
-        .fit-score-details {
-            flex: 1;
-        }
-
-        .fit-score-label {
-            font-size: 11px; color: var(--recast-text-muted); font-weight: 500;
-        }
-
-        .fit-score-bar {
-            height: 4px; background: var(--recast-border); border-radius: 2px;
-            margin-top: 4px; overflow: hidden;
-        }
-
-        .fit-score-fill {
-            height: 100%; border-radius: 2px;
-            transition: width 0.5s ease;
-        }
-
-        .partner-triggers {
-            margin-bottom: 12px;
-        }
-
-        .trigger-label {
-            font-size: 11px; font-weight: 600; color: var(--recast-text-dim);
-            margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        .trigger-tags {
-            display: flex; flex-wrap: wrap; gap: 4px;
-        }
-
-        .trigger-tag {
-            padding: 3px 8px; border-radius: 4px;
-            font-size: 10px; font-weight: 600;
-            background: rgba(255,107,53,0.1);
-            color: var(--recast-orange);
-            border: 1px solid rgba(255,107,53,0.2);
-        }
-
-        .partner-actions {
-            display: flex; gap: 8px;
-        }
-
-        .partner-action-btn {
-            flex: 1; padding: 10px; border-radius: 8px;
-            font-size: 12px; font-weight: 600; cursor: pointer;
-            border: 1px solid var(--recast-border);
-            background: var(--recast-surface-light);
-            color: var(--recast-text);
-            transition: all 0.2s; text-align: center;
-        }
-
-        .partner-action-btn:hover {
-            background: var(--recast-accent); color: var(--recast-navy);
-            border-color: var(--recast-accent);
-        }
-
-        .contacts-section {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 16px; padding: 20px;
-            margin-bottom: 24px;
-            box-shadow: var(--shadow-md);
-        }
-
-        .contacts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 16px;
-        }
-
-        .contact-card {
-            background: var(--recast-surface-light);
-            border: 1px solid var(--recast-border);
-            border-radius: 12px; padding: 16px;
-            transition: all 0.2s;
-        }
-
-        .contact-card:hover {
-            border-color: var(--recast-accent);
-            box-shadow: var(--shadow-glow);
-        }
-
-        .contact-header {
-            display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
-        }
-
-        .contact-avatar {
-            width: 44px; height: 44px; border-radius: 50%;
-            background: linear-gradient(135deg, var(--recast-blue), var(--recast-accent));
-            display: flex; align-items: center; justify-content: center;
-            font-size: 16px; font-weight: 700; color: white;
-            border: 2px solid var(--recast-border);
-        }
-
-        .contact-info {
-            flex: 1;
-        }
-
-        .contact-name {
-            font-size: 14px; font-weight: 700;
-        }
-
-        .contact-role {
-            font-size: 12px; color: var(--recast-accent); font-weight: 500;
-        }
-
-        .contact-company {
-            font-size: 11px; color: var(--recast-text-muted);
-        }
-
-        .contact-details {
-            display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-        }
-
-        .contact-detail {
-            font-size: 11px; color: var(--recast-text-muted);
-        }
-
-        .contact-detail-label {
-            font-size: 10px; color: var(--recast-text-dim); text-transform: uppercase;
-            letter-spacing: 0.5px; margin-bottom: 2px;
-        }
-
-        .contact-detail-value {
-            font-weight: 600; color: var(--recast-text);
-        }
-
-        .contact-actions {
-            display: flex; gap: 6px; margin-top: 12px;
-        }
-
-        .contact-action {
-            flex: 1; padding: 6px 10px; border-radius: 6px;
-            font-size: 11px; font-weight: 600; cursor: pointer;
-            border: 1px solid var(--recast-border);
-            background: transparent; color: var(--recast-text-muted);
-            transition: all 0.2s; text-align: center;
-            text-decoration: none;
-        }
-
-        .contact-action:hover {
-            background: var(--recast-accent); color: var(--recast-navy);
-            border-color: var(--recast-accent);
-        }
-
-        .stats-bar {
-            display: grid; grid-template-columns: repeat(4, 1fr);
-            gap: 16px; margin-bottom: 24px;
-        }
-
-        .stat-card {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 12px; padding: 20px;
+        .stat-cell {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
             text-align: center;
-            transition: all 0.2s;
         }
 
-        .stat-card:hover {
-            border-color: var(--recast-accent);
-        }
-
-        .stat-value {
-            font-size: 28px; font-weight: 800;
-            background: linear-gradient(135deg, var(--recast-accent), var(--recast-gradient-end));
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        .stat-number {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--ink);
+            line-height: 1;
         }
 
         .stat-label {
-            font-size: 12px; color: var(--recast-text-muted); font-weight: 500;
-            margin-top: 4px;
+            font-size: 13px;
+            color: var(--gray-light);
+            margin-top: 6px;
+            font-weight: 500;
         }
 
+        /* Map */
+        .map-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            margin-bottom: var(--space-3);
+        }
+
+        .section-header-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        #partnerMap {
+            height: 360px;
+            border-radius: var(--radius-card);
+            background: #E8E8ED;
+        }
+
+        /* Partner Cards */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: var(--space-2);
+            margin-bottom: var(--space-3);
+        }
+
+        .partner-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            cursor: pointer;
+            transition: transform 0.2s ease, background 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .partner-card:hover {
+            background: white;
+            border-color: var(--hairline);
+            transform: translateY(-2px);
+        }
+
+        .partner-card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: var(--space-2);
+        }
+
+        .partner-tile {
+            width: 44px;
+            height: 44px;
+            border-radius: var(--radius-tile);
+            background: var(--blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .partner-tile.premier { background: var(--orange); }
+        .partner-tile.value { background: var(--blue); }
+        .partner-tile.registered { background: var(--gray-light); }
+
+        .partner-tier-pill {
+            padding: 4px 12px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .tier-pill-premier {
+            background: rgba(255,149,0,0.1);
+            color: var(--orange);
+        }
+
+        .tier-pill-value {
+            background: rgba(0,122,255,0.1);
+            color: var(--blue);
+        }
+
+        .tier-pill-registered {
+            background: var(--card);
+            color: var(--gray-light);
+        }
+
+        .partner-name {
+            font-size: 17px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 2px;
+        }
+
+        .partner-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: var(--space-2);
+        }
+
+        .partner-meta-chip {
+            font-size: 12px;
+            color: var(--gray);
+            background: white;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            border: 1px solid var(--hairline);
+        }
+
+        .partner-fit {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+            padding: var(--space-2);
+            background: white;
+            border-radius: var(--radius-card);
+        }
+
+        .fit-ring {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--blue);
+            border: 3px solid var(--blue);
+            flex-shrink: 0;
+        }
+
+        .fit-ring.medium { color: var(--orange); border-color: var(--orange); }
+        .fit-ring.low { color: var(--red); border-color: var(--red); }
+
+        .fit-details { flex: 1; }
+
+        .fit-label {
+            font-size: 12px;
+            color: var(--gray-light);
+            font-weight: 600;
+        }
+
+        .fit-bar {
+            height: 4px;
+            background: var(--hairline);
+            border-radius: 2px;
+            margin-top: 4px;
+            overflow: hidden;
+        }
+
+        .fit-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            background: var(--blue);
+            transition: width 0.5s ease;
+        }
+
+        .fit-bar-fill.medium { background: var(--orange); }
+        .fit-bar-fill.low { background: var(--red); }
+
+        .partner-triggers {
+            margin-bottom: var(--space-2);
+        }
+
+        .trigger-pill {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: var(--radius-pill);
+            font-size: 11px;
+            font-weight: 600;
+            background: rgba(255,59,48,0.08);
+            color: var(--red);
+            margin-right: 4px;
+            margin-bottom: 4px;
+        }
+
+        .partner-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .partner-actions .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 8px 14px;
+            font-size: 13px;
+        }
+
+        .note-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--blue);
+            font-weight: 600;
+            margin-top: 8px;
+        }
+
+        /* Contacts */
+        .contacts-card {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            margin-bottom: var(--space-3);
+            display: none;
+        }
+
+        .contacts-card.active { display: block; }
+
+        .contacts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: var(--space-2);
+        }
+
+        .contact-item {
+            background: white;
+            border-radius: var(--radius-card);
+            padding: var(--space-3);
+            border: 1px solid var(--hairline);
+            transition: border-color 0.2s;
+        }
+
+        .contact-item:hover {
+            border-color: var(--blue);
+        }
+
+        .contact-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .contact-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--card);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--ink);
+            flex-shrink: 0;
+        }
+
+        .contact-info { flex: 1; }
+
+        .contact-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--ink);
+        }
+
+        .contact-role {
+            font-size: 13px;
+            color: var(--blue);
+            font-weight: 600;
+        }
+
+        .contact-company {
+            font-size: 12px;
+            color: var(--gray-light);
+        }
+
+        .contact-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-bottom: var(--space-2);
+        }
+
+        .contact-detail-label {
+            font-size: 11px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 2px;
+        }
+
+        .contact-detail-value {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .contact-approach {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-2);
+            margin-bottom: var(--space-2);
+        }
+
+        .contact-approach-label {
+            font-size: 11px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .contact-approach-text {
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.5;
+        }
+
+        .contact-actions-row {
+            display: flex;
+            gap: 6px;
+        }
+
+        .contact-actions-row .btn {
+            flex: 1;
+            justify-content: center;
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        /* Modal */
         .modal-overlay {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-            backdrop-filter: blur(8px); z-index: 2000;
-            display: none; align-items: center; justify-content: center;
-            padding: 40px;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            backdrop-filter: blur(8px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3);
         }
 
         .modal-overlay.active { display: flex; }
 
-        .modal {
-            background: var(--recast-surface);
-            border: 1px solid var(--recast-border);
-            border-radius: 20px; width: 100%; max-width: 900px;
-            max-height: 85vh; overflow-y: auto;
-            box-shadow: var(--shadow-lg);
+        .modal-sheet {
+            background: white;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         }
 
         .modal-header {
-            padding: 24px 28px; border-bottom: 1px solid var(--recast-border);
-            display: flex; align-items: center; justify-content: space-between;
+            padding: var(--space-3) var(--space-3) 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .modal-title {
-            font-size: 20px; font-weight: 700;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ink);
         }
 
         .modal-close {
-            width: 36px; height: 36px; border-radius: 10px;
-            background: var(--recast-surface-light);
-            border: 1px solid var(--recast-border);
-            color: var(--recast-text-muted); font-size: 20px;
-            cursor: pointer; display: flex; align-items: center; justify-content: center;
-            transition: all 0.2s;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--card);
+            border: none;
+            color: var(--gray);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
         .modal-close:hover {
-            background: var(--recast-red); color: white; border-color: var(--recast-red);
+            background: var(--hairline);
         }
 
         .modal-body {
-            padding: 28px;
+            padding: var(--space-3);
         }
 
         .modal-section {
-            margin-bottom: 24px;
+            margin-bottom: var(--space-3);
+            padding-bottom: var(--space-3);
+            border-bottom: 1px solid var(--hairline);
+        }
+
+        .modal-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
         }
 
         .modal-section-title {
-            font-size: 14px; font-weight: 700; color: var(--recast-accent);
-            margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        .modal-grid {
-            display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
-        }
-
-        .modal-info-item {
-            background: var(--recast-surface-light);
-            border: 1px solid var(--recast-border);
-            border-radius: 10px; padding: 14px;
-        }
-
-        .modal-info-label {
-            font-size: 11px; color: var(--recast-text-dim);
-            text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
-        }
-
-        .modal-info-value {
-            font-size: 14px; font-weight: 600; color: var(--recast-text);
-        }
-
-        .green-flag, .red-flag {
-            display: flex; align-items: flex-start; gap: 8px;
-            padding: 10px 14px; border-radius: 8px; margin-bottom: 8px;
             font-size: 13px;
+            font-weight: 700;
+            color: var(--blue);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: var(--space-2);
         }
 
-        .green-flag {
-            background: rgba(0,212,170,0.08);
-            border: 1px solid rgba(0,212,170,0.2);
-            color: var(--recast-accent);
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-2);
         }
 
-        .red-flag {
-            background: rgba(230,57,70,0.08);
-            border: 1px solid rgba(230,57,70,0.2);
-            color: var(--recast-red);
+        .info-cell {
+            background: var(--card);
+            border-radius: var(--radius-card);
+            padding: var(--space-2);
         }
 
-        .flag-icon { font-size: 14px; flex-shrink: 0; margin-top: 2px; }
+        .info-label {
+            font-size: 11px;
+            color: var(--gray-light);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
 
-        .toast-container {
-            position: fixed; bottom: 24px; right: 24px; z-index: 3000;
-            display: flex; flex-direction: column; gap: 8px;
+        .info-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--ink);
+        }
+
+        .flag-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: var(--radius-card);
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .flag-green {
+            background: rgba(52,199,89,0.08);
+            color: #1D6F2B;
+        }
+
+        .flag-red {
+            background: rgba(255,59,48,0.08);
+            color: #C41C14;
+        }
+
+        .flag-icon {
+            font-size: 16px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* Notes textarea */
+        .notes-area {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-input);
+            border: 1px solid var(--hairline);
+            background: white;
+            font-family: inherit;
+            font-size: 14px;
+            color: var(--ink);
+            outline: none;
+            resize: vertical;
+            min-height: 80px;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .notes-area:focus {
+            border-color: var(--blue);
+            box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+        }
+
+        .notes-area::placeholder {
+            color: var(--gray-light);
+        }
+
+        /* Toast */
+        .toast-stack {
+            position: fixed;
+            bottom: var(--space-3);
+            right: var(--space-3);
+            z-index: 3000;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-1);
         }
 
         .toast {
-            padding: 14px 20px; border-radius: 10px;
-            font-size: 13px; font-weight: 600;
-            box-shadow: var(--shadow-lg);
-            animation: slideIn 0.3s ease;
-            display: flex; align-items: center; gap: 10px;
+            padding: 12px 18px;
+            border-radius: var(--radius-card);
+            font-size: 14px;
+            font-weight: 600;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            animation: toastSlide 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 360px;
         }
 
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        @keyframes toastSlide {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        .toast-success { background: var(--recast-accent); color: var(--recast-navy); }
-        .toast-error { background: var(--recast-red); color: white; }
-        .toast-info { background: var(--recast-blue); color: white; }
+        .toast-ok { background: var(--green); color: white; }
+        .toast-bad { background: var(--red); color: white; }
+        .toast-info { background: var(--ink); color: white; }
 
-        .loading-spinner {
-            display: inline-block; width: 20px; height: 20px;
-            border: 2px solid var(--recast-border);
-            border-top-color: var(--recast-accent);
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .main-layout {
+                flex-direction: column;
+                gap: var(--space-3);
+            }
+            .sidebar {
+                width: 100%;
+                position: static;
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: var(--space-2);
+            }
+            .sidebar-section {
+                border-bottom: none;
+                margin-bottom: 0;
+                padding-bottom: 0;
+            }
+            .stats-row {
+                grid-template-columns: repeat(2, 1fr);
+            }
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        .skeleton {
-            background: linear-gradient(90deg, var(--recast-surface-light) 25%, var(--recast-border) 50%, var(--recast-surface-light) 75%);
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 6px;
+        @media (max-width: 640px) {
+            .page-headline { font-size: 28px; }
+            .section-headline { font-size: 20px; }
+            .stats-row { grid-template-columns: 1fr 1fr; }
+            .cards-grid { grid-template-columns: 1fr; }
+            .info-grid { grid-template-columns: 1fr; }
+            .site-header-inner { padding: 0 var(--space-2); }
+            .app-shell { padding: 0 var(--space-2); }
         }
 
-        @keyframes shimmer {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
-        }
-
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: var(--recast-navy); }
-        ::-webkit-scrollbar-thumb { background: var(--recast-border); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--recast-text-dim); }
-
-        @media (max-width: 1200px) {
-            .sidebar { width: 240px; }
-            .content { margin-left: 240px; max-width: calc(100% - 240px); }
-        }
-
-        @media (max-width: 900px) {
-            .sidebar { display: none; }
-            .content { margin-left: 0; max-width: 100%; padding: 16px; }
-            .stats-bar { grid-template-columns: repeat(2, 1fr); }
-            .results-grid { grid-template-columns: 1fr; }
-        }
-
-        .fade-in {
-            animation: fadeIn 0.4s ease forwards;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .slide-up {
-            animation: slideUp 0.3s ease forwards;
-        }
-
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Utility */
+        .hidden { display: none !important; }
     </style>
+<base target="_blank">
 </head>
 <body>
-    <div class="bg-mesh"></div>
-    <div class="bg-grid"></div>
-
-    <header class="header">
-        <div class="header-brand">
-            <div class="header-logo">R</div>
-            <div>
-                <div class="header-title">Partner ICP Intelligence</div>
-                <div class="header-subtitle">Recast Software — North America</div>
+    <header class="site-header">
+        <div class="site-header-inner">
+            <div class="header-brand">
+                <div class="header-logo-tile">R</div>
+                <div class="header-title-group">
+                    <div class="header-title">Partner ICP Intelligence.</div>
+                    <div class="header-subtitle">Recast Software — North America</div>
+                </div>
             </div>
-        </div>
-        <div class="header-actions">
-            <div class="connection-status">
-                <div class="status-dot"></div>
-                <span>AI Connected</span>
+            <div class="header-actions">
+                <div class="caption" style="margin-right:8px;">AI Connected</div>
+                <button class="btn btn-secondary btn-small" onclick="exportToSheets()">Export to Sheets</button>
+                <button class="btn btn-primary btn-small" onclick="runAISearch()">AI Deep Search</button>
             </div>
-            <button class="header-btn header-btn-secondary" onclick="exportToSheets()">
-                <span>&#128202;</span> Export to Sheets
-            </button>
-            <button class="header-btn header-btn-primary" onclick="runAISearch()">
-                <span>&#128269;</span> AI Deep Search
-            </button>
         </div>
     </header>
 
-    <div class="main-container">
-        <aside class="sidebar">
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Partner Archetype</div>
-                <div class="filter-group">
-                    <label class="filter-label">Type</label>
+    <div class="app-shell">
+        <div class="main-layout">
+            <aside class="sidebar">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Partner archetype</div>
                     <select class="filter-select" id="filterType" onchange="applyFilters()">
-                        <option value="all">All Archetypes</option>
-                        <option value="msp_si">MSP / SI Partner</option>
-                        <option value="isv_tech">ISV / Technology Partner</option>
+                        <option value="all">All archetypes</option>
+                        <option value="msp_si">MSP / SI partner</option>
+                        <option value="isv_tech">ISV / Technology partner</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Partner Tier</div>
-                <div class="filter-chip-group">
-                    <div class="filter-chip active" data-tier="all" onclick="toggleTier(this)">All</div>
-                    <div class="filter-chip" data-tier="premier" onclick="toggleTier(this)">Premier</div>
-                    <div class="filter-chip" data-tier="value" onclick="toggleTier(this)">Value</div>
-                    <div class="filter-chip" data-tier="registered" onclick="toggleTier(this)">Registered</div>
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Partner tier</div>
+                    <div class="chip-group">
+                        <div class="chip active" data-tier="all" onclick="toggleTier(this)">All</div>
+                        <div class="chip" data-tier="premier" onclick="toggleTier(this)">Premier</div>
+                        <div class="chip" data-tier="value" onclick="toggleTier(this)">Value</div>
+                        <div class="chip" data-tier="registered" onclick="toggleTier(this)">Registered</div>
+                    </div>
                 </div>
-            </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Geography</div>
-                <div class="filter-group">
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Geography</div>
                     <select class="filter-select" id="filterGeo" onchange="applyFilters()">
-                        <option value="all">All Regions</option>
+                        <option value="all">All regions</option>
                         <option value="na">North America</option>
                         <option value="us">United States</option>
                         <option value="ca">Canada</option>
@@ -913,142 +1131,137 @@
                         <option value="global">Global</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">ICP Fit Score</div>
-                <div class="icp-score-card">
-                    <div style="display:flex; align-items:center; justify-content:space-between;">
-                        <div>
-                            <div class="icp-score-value" id="avgFitScore">87%</div>
-                            <div class="icp-score-label">Average Match</div>
+                <div class="sidebar-section">
+                    <div class="icp-card">
+                        <div style="display:flex; align-items:center; justify-content:space-between;">
+                            <div>
+                                <div class="icp-score-big" id="avgFitScore">87%</div>
+                                <div class="icp-score-label">Average match</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:24px; font-weight:700; color:var(--ink);">12</div>
+                                <div class="icp-score-label">Partners found</div>
+                            </div>
                         </div>
-                        <div style="text-align:right;">
-                            <div style="font-size:20px; font-weight:700; color:var(--recast-accent);">12</div>
-                            <div class="icp-score-label">Partners Found</div>
+                        <div class="icp-bar-track">
+                            <div class="icp-bar-fill" style="width:87%"></div>
                         </div>
                     </div>
-                    <div class="icp-score-bar">
-                        <div class="icp-score-fill" style="width:87%"></div>
+                </div>
+
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Trigger events</div>
+                    <div class="chip-group">
+                        <div class="chip" data-trigger="citrix" onclick="toggleTrigger(this)">Citrix hike</div>
+                        <div class="chip" data-trigger="avd" onclick="toggleTrigger(this)">AVD migration</div>
+                        <div class="chip" data-trigger="res" onclick="toggleTrigger(this)">RES EOL</div>
+                        <div class="chip" data-trigger="intune" onclick="toggleTrigger(this)">Intune transition</div>
+                        <div class="chip" data-trigger="arm" onclick="toggleTrigger(this)">ARM adoption</div>
                     </div>
                 </div>
-            </div>
 
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Trigger Events</div>
-                <div class="filter-chip-group">
-                    <div class="filter-chip" data-trigger="citrix" onclick="toggleTrigger(this)">Citrix Hike</div>
-                    <div class="filter-chip" data-trigger="avd" onclick="toggleTrigger(this)">AVD Migration</div>
-                    <div class="filter-chip" data-trigger="res" onclick="toggleTrigger(this)">RES EOL</div>
-                    <div class="filter-chip" data-trigger="intune" onclick="toggleTrigger(this)">Intune Transition</div>
-                    <div class="filter-chip" data-trigger="arm" onclick="toggleTrigger(this)">ARM Adoption</div>
-                </div>
-            </div>
-
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Vertical Focus</div>
-                <div class="filter-chip-group">
-                    <div class="filter-chip" data-vertical="finance" onclick="toggleVertical(this)">Finance</div>
-                    <div class="filter-chip" data-vertical="healthcare" onclick="toggleVertical(this)">Healthcare</div>
-                    <div class="filter-chip" data-vertical="insurance" onclick="toggleVertical(this)">Insurance</div>
-                    <div class="filter-chip" data-vertical="energy" onclick="toggleVertical(this)">Energy</div>
-                </div>
-            </div>
-        </aside>
-
-        <main class="content">
-            <div class="search-section">
-                <div class="search-tabs">
-                    <button class="search-tab active" data-tab="companies" onclick="switchTab(this)">Companies</button>
-                    <button class="search-tab" data-tab="contacts" onclick="switchTab(this)">Target Contacts</button>
-                    <button class="search-tab" data-tab="insights" onclick="switchTab(this)">AI Insights</button>
-                </div>
-                <div class="search-input-wrapper">
-                    <span class="search-icon">&#128269;</span>
-                    <input type="text" class="search-input" id="searchInput" 
-                           placeholder="Search partners by name, technology, vertical, or trigger event..."
-                           onkeyup="handleSearch(event)">
-                </div>
-                <div class="search-actions">
-                    <button class="search-action-btn" onclick="quickFilter('microsoft')">&#127970; Microsoft Ecosystem</button>
-                    <button class="search-action-btn" onclick="quickFilter('citrix')">&#128421; Citrix Replacements</button>
-                    <button class="search-action-btn" onclick="quickFilter('avd')">&#9729; AVD/VDI Focus</button>
-                    <button class="search-action-btn" onclick="quickFilter('intune')">&#128295; Intune/SCCM</button>
-                    <button class="search-action-btn" onclick="quickFilter('premier')">&#11088; Premier Tier</button>
-                </div>
-            </div>
-
-            <div class="ai-panel" id="aiPanel">
-                <div class="ai-panel-header">
-                    <div class="ai-badge">AI Analysis</div>
-                    <div class="ai-panel-title">Deep Partner Intelligence</div>
-                </div>
-                <div class="ai-insights" id="aiInsights"></div>
-            </div>
-
-            <div class="stats-bar">
-                <div class="stat-card">
-                    <div class="stat-value" id="statTotal">12</div>
-                    <div class="stat-label">Total Partners</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statPremier">2</div>
-                    <div class="stat-label">Premier Strategic</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statPipeline">$4.2M</div>
-                    <div class="stat-label">Pipeline Value</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="statContacts">48</div>
-                    <div class="stat-label">Target Contacts</div>
-                </div>
-            </div>
-
-            <div class="map-section">
-                <div class="section-header">
-                    <div class="section-title">
-                        <span>&#128506;</span> Partner Geography
+                <div class="sidebar-section">
+                    <div class="sidebar-title">Vertical focus</div>
+                    <div class="chip-group">
+                        <div class="chip" data-vertical="finance" onclick="toggleVertical(this)">Finance</div>
+                        <div class="chip" data-vertical="healthcare" onclick="toggleVertical(this)">Healthcare</div>
+                        <div class="chip" data-vertical="insurance" onclick="toggleVertical(this)">Insurance</div>
+                        <div class="chip" data-vertical="energy" onclick="toggleVertical(this)">Energy</div>
                     </div>
-                    <div class="section-badge" id="mapBadge">12 Partners Mapped</div>
                 </div>
-                <div id="partnerMap"></div>
-            </div>
+            </aside>
 
-            <div class="section-header">
-                <div class="section-title">
-                    <span>&#127970;</span> Partner Profiles
-                </div>
-                <div class="section-badge" id="resultsBadge">12 Results</div>
-            </div>
-            <div class="results-grid" id="partnerCards"></div>
-
-            <div class="contacts-section" id="contactsSection" style="display:none;">
-                <div class="section-header">
-                    <div class="section-title">
-                        <span>&#128100;</span> Target Decision Makers
+            <main class="content">
+                <div class="search-card">
+                    <div class="search-tabs">
+                        <button class="search-tab active" data-tab="companies" onclick="switchTab(this)">Companies</button>
+                        <button class="search-tab" data-tab="contacts" onclick="switchTab(this)">Target contacts</button>
+                        <button class="search-tab" data-tab="insights" onclick="switchTab(this)">AI insights</button>
                     </div>
-                    <div class="section-badge" id="contactsBadge">48 Contacts</div>
+                    <div class="search-input-wrap">
+                        <span class="search-icon">&#128269;</span>
+                        <input type="text" class="search-input" id="searchInput"
+                               placeholder="Search partners by name, technology, vertical, or trigger event..."
+                               onkeyup="handleSearch(event)">
+                    </div>
+                    <div class="quick-filters">
+                        <button class="quick-filter" onclick="quickFilter('microsoft')">Microsoft ecosystem</button>
+                        <button class="quick-filter" onclick="quickFilter('citrix')">Citrix replacements</button>
+                        <button class="quick-filter" onclick="quickFilter('avd')">AVD / VDI focus</button>
+                        <button class="quick-filter" onclick="quickFilter('intune')">Intune / SCCM</button>
+                        <button class="quick-filter" onclick="quickFilter('premier')">Premier tier</button>
+                    </div>
                 </div>
-                <div class="contacts-grid" id="contactsGrid"></div>
-            </div>
-        </main>
+
+                <div class="ai-panel" id="aiPanel">
+                    <div class="ai-card">
+                        <div class="ai-header">
+                            <div class="ai-badge">AI analysis</div>
+                            <div class="section-headline" style="font-size:18px;">Deep partner intelligence.</div>
+                        </div>
+                        <div class="ai-grid" id="aiInsights"></div>
+                    </div>
+                </div>
+
+                <div class="stats-row">
+                    <div class="stat-cell">
+                        <div class="stat-number" id="statTotal">12</div>
+                        <div class="stat-label">Total partners</div>
+                    </div>
+                    <div class="stat-cell">
+                        <div class="stat-number" id="statPremier">2</div>
+                        <div class="stat-label">Premier strategic</div>
+                    </div>
+                    <div class="stat-cell">
+                        <div class="stat-number" id="statPipeline">$4.2M</div>
+                        <div class="stat-label">Pipeline value</div>
+                    </div>
+                    <div class="stat-cell">
+                        <div class="stat-number" id="statContacts">48</div>
+                        <div class="stat-label">Target contacts</div>
+                    </div>
+                </div>
+
+                <div class="map-card">
+                    <div class="section-header-row">
+                        <div class="section-headline" style="font-size:18px;">Partner geography.</div>
+                        <div class="caption" id="mapBadge">12 partners mapped</div>
+                    </div>
+                    <div id="partnerMap"></div>
+                </div>
+
+                <div class="section-header-row">
+                    <div class="section-headline" style="font-size:18px;">Partner profiles.</div>
+                    <div class="caption" id="resultsBadge">12 results</div>
+                </div>
+                <div class="cards-grid" id="partnerCards"></div>
+
+                <div class="contacts-card" id="contactsSection">
+                    <div class="section-header-row">
+                        <div class="section-headline" style="font-size:18px;">Target decision makers.</div>
+                        <div class="caption" id="contactsBadge">48 contacts</div>
+                    </div>
+                    <div class="contacts-grid" id="contactsGrid"></div>
+                </div>
+            </main>
+        </div>
     </div>
 
     <div class="modal-overlay" id="partnerModal" onclick="closeModal(event)">
-        <div class="modal" onclick="event.stopPropagation()">
+        <div class="modal-sheet" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <div class="modal-title" id="modalTitle">Partner Details</div>
+                <div class="modal-title" id="modalTitle">Partner details</div>
                 <button class="modal-close" onclick="closeModal()">&times;</button>
             </div>
             <div class="modal-body" id="modalBody"></div>
         </div>
     </div>
 
-    <div class="toast-container" id="toastContainer"></div>
+    <div class="toast-stack" id="toastStack"></div>
     <script>
 // ============================================
-// DATA STORE - Recast Partner ICP Intelligence
+// DATA — Recast Partner ICP Intelligence
 // ============================================
 const partners = [
     {
@@ -1075,11 +1288,9 @@ const partners = [
         redFlags: [],
         triggers: ["Citrix Hike", "Intune Transition", "AVD Migration"],
         verticals: ["Finance", "Healthcare", "Insurance"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: true, avd: true, intune: true,
         description: "Insight is a Fortune 500 global solutions integrator with deep Microsoft practice. Their Managed Endpoint 2.0 offering aligns perfectly with Recast's Application Workspace, enabling them to deliver modern application management at enterprise scale.",
+        notes: "",
         contacts: [
             { name: "Sarah Chen", role: "VP, Modern Workplace Practice", email: "s.chen@insight.com", linkedin: "linkedin.com/in/sarahchen-insight", tenure: "4 years", department: "Microsoft Practice", priority: "high", bestApproach: "Reference joint Microsoft co-sell wins. Lead with ROI data on endpoint management automation." },
             { name: "Marcus Williams", role: "Director, Partner Alliances", email: "m.williams@insight.com", linkedin: "linkedin.com/in/marcuswilliams", tenure: "2.5 years", department: "Alliances", priority: "high", bestApproach: "Pitch strategic partnership framework. Reference Nerdio co-sell model as proof point." },
@@ -1110,11 +1321,9 @@ const partners = [
         redFlags: [],
         triggers: ["Citrix Hike", "Intune Transition", "RES EOL", "AVD Migration"],
         verticals: ["Finance", "Healthcare", "Insurance", "Energy"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: true, avd: true, intune: true,
         description: "Infosys brings massive global scale and a dedicated Modern Workplace practice. Their appetite for joint solutions across endpoints and security makes them an ideal Premier partner for Recast's North American expansion.",
+        notes: "",
         contacts: [
             { name: "Rajesh Kumar", role: "SVP, Modern Workplace & Security", email: "rajesh.kumar@infosys.com", linkedin: "linkedin.com/in/rajeshkumar-infosys", tenure: "8 years", department: "Modern Workplace", priority: "high", bestApproach: "Executive-level partnership pitch. Lead with joint solution architecture and global delivery model." },
             { name: "Lisa Thompson", role: "Head of Microsoft Alliances", email: "lisa.thompson@infosys.com", linkedin: "linkedin.com/in/lisathompson", tenure: "3 years", department: "Alliances", priority: "high", bestApproach: "Microsoft co-sell alignment. Reference Azure Marketplace bundling opportunity with Nerdio model." },
@@ -1145,11 +1354,9 @@ const partners = [
         redFlags: [],
         triggers: ["AVD Migration", "Citrix Hike", "Intune Transition"],
         verticals: ["Finance", "Healthcare", "Insurance"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: false,
+        microsoft: true, citrix: true, avd: true, intune: false,
         description: "Nerdio is the gold-standard ISV partner. Their Windows 365/AVD orchestration combined with Recast's application layer creates an unbeatable joint value proposition. Their ICP overlap is nearly 100% with Recast's downstream ICP.",
+        notes: "",
         contacts: [
             { name: "Vadim Vladimirskiy", role: "CEO & Co-Founder", email: "vadim@nerdio.net", linkedin: "linkedin.com/in/vadimv", tenure: "10+ years", department: "Executive", priority: "high", bestApproach: "Executive partnership discussion. Reference existing mutual pipeline and joint SKU potential." },
             { name: "Amanda Z", role: "VP, Alliances & Channels", email: "amanda@nerdio.net", linkedin: "linkedin.com/in/amandaz", tenure: "3 years", department: "Alliances", priority: "high", bestApproach: "Joint GTM planning. Propose shared pipeline reviews and co-branded Azure Marketplace offers." },
@@ -1184,11 +1391,9 @@ const partners = [
         ],
         triggers: ["ARM Adoption", "Intune Transition"],
         verticals: ["Finance", "Healthcare"],
-        microsoft: true,
-        citrix: false,
-        avd: false,
-        intune: true,
+        microsoft: true, citrix: false, avd: false, intune: true,
         description: "Qualcomm's Snapdragon ARM enterprise compute initiative is stalled by app compatibility — exactly the problem Recast solves. This partnership could unlock a massive new compute category for both companies.",
+        notes: "",
         contacts: [
             { name: "Miguel Nunes", role: "SVP & GM, Compute & Cloud", email: "miguel.nunes@qualcomm.com", linkedin: "linkedin.com/in/miguelnunes", tenure: "7 years", department: "Compute", priority: "high", bestApproach: "Executive pitch on ARM app compatibility. Show how Recast enables Snapdragon enterprise adoption at scale." },
             { name: "Patricia Lopez", role: "Director, Enterprise Partnerships", email: "patricia.lopez@qualcomm.com", linkedin: "linkedin.com/in/patricialopez", tenure: "2 years", department: "Partnerships", priority: "high", bestApproach: "Joint solution packaging. Propose bundled ARM+Recast offering for enterprise pilots." },
@@ -1219,11 +1424,9 @@ const partners = [
         redFlags: [],
         triggers: ["Intune Transition", "Citrix Hike", "AVD Migration"],
         verticals: ["Finance", "Insurance"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: true, avd: true, intune: true,
         description: "GetRubix is a pure services play with deep Microsoft DNA. Their influencer-led demand model and services-only approach (no resale margin hunting) makes them an ideal Value tier partner.",
+        notes: "",
         contacts: [
             { name: "Alex Rivera", role: "CEO & Founder", email: "alex@getrubix.com", linkedin: "linkedin.com/in/alexrivera", tenure: "3 years", department: "Executive", priority: "high", bestApproach: "Founder-to-founder energy. Lead with services revenue potential and joint webinar/content series." },
             { name: "Nina Patel", role: "Director, Microsoft Practice", email: "nina@getrubix.com", linkedin: "linkedin.com/in/ninapatel", tenure: "2 years", department: "Microsoft Practice", priority: "high", bestApproach: "Technical enablement pitch. Show how Recast extends their M365 services with app delivery automation." },
@@ -1257,11 +1460,9 @@ const partners = [
         ],
         triggers: ["Intune Transition", "SCCM Migration", "Citrix Hike"],
         verticals: ["Healthcare", "Finance"],
-        microsoft: true,
-        citrix: true,
-        avd: false,
-        intune: true,
+        microsoft: true, citrix: true, avd: false, intune: true,
         description: "System Center Dudes are the Microsoft endpoint management thought leaders. Their community influence and technical depth make them powerful deal sources, especially for SCCM-to-Intune transition projects.",
+        notes: "",
         contacts: [
             { name: "Benoit Lecours", role: "Co-Founder & MVP", email: "benoit@systemcenterdudes.com", linkedin: "linkedin.com/in/benoitlecours", tenure: "11 years", department: "Founder", priority: "high", bestApproach: "Community-first approach. Propose joint webinar series on SCCM-to-Intune with Application Workspace." },
             { name: "Nick Pilon", role: "Co-Founder & MVP", email: "nick@systemcenterdudes.com", linkedin: "linkedin.com/in/nickpilon", tenure: "11 years", department: "Founder", priority: "high", bestApproach: "Technical co-creation. Invite to beta programs and joint solution architecture sessions." },
@@ -1295,11 +1496,9 @@ const partners = [
         ],
         triggers: ["VDI Refresh", "Citrix Hike", "AVD Migration"],
         verticals: ["Finance", "Energy"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: false,
+        microsoft: true, citrix: true, avd: true, intune: false,
         description: "Creative ITC brings global reach and a VDI-first heritage. Their treatment of Recast as a Tier 1 vendor signals strong commitment, and their Equinix presence enables high-performance app delivery.",
+        notes: "",
         contacts: [
             { name: "Robert Chen", role: "CTO", email: "robert.chen@creativeitc.com", linkedin: "linkedin.com/in/robertchen-cto", tenure: "5 years", department: "Technology", priority: "high", bestApproach: "Technical architecture discussion. Lead with VDI modernization and multi-tenant app delivery framework." },
             { name: "Angela Martinez", role: "VP, Partner Ecosystem", email: "angela.martinez@creativeitc.com", linkedin: "linkedin.com/in/angelamartinez", tenure: "2 years", department: "Partners", priority: "high", bestApproach: "Partnership framework pitch. Propose joint solution in Equinix marketplace." },
@@ -1333,11 +1532,9 @@ const partners = [
         ],
         triggers: ["App Compatibility", "Intune Transition"],
         verticals: ["Finance", "Healthcare"],
-        microsoft: true,
-        citrix: false,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: false, avd: true, intune: true,
         description: "Numecent offers complementary application virtualization technology. While detail is currently thin, their Cloudpaging approach and government sector presence make them a promising Value tier technology partner.",
+        notes: "",
         contacts: [
             { name: "Arthur Hitomi", role: "CEO & Co-Founder", email: "arthur@numecent.com", linkedin: "linkedin.com/in/arthurhitomi", tenure: "12 years", department: "Executive", priority: "medium", bestApproach: "Technical partnership discussion. Explore integration points between Cloudpaging and Application Workspace." },
             { name: "Dr. Osman Kent", role: "CTO & Co-Founder", email: "osman@numecent.com", linkedin: "linkedin.com/in/osmankent", tenure: "12 years", department: "Technology", priority: "medium", bestApproach: "Deep technical integration roadmap. Propose joint R&D on next-gen app virtualization." }
@@ -1370,11 +1567,9 @@ const partners = [
         ],
         triggers: ["Intune Transition", "Cloud Migration"],
         verticals: ["Finance", "Healthcare"],
-        microsoft: true,
-        citrix: false,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: false, avd: true, intune: true,
         description: "Elantis/Axelliant represents a North America MSP/SI add with Microsoft focus. While currently in engaged status, their mid-market alignment and services model make them a viable Value tier candidate.",
+        notes: "",
         contacts: [
             { name: "Michael Torres", role: "Managing Director", email: "michael@elantis.com", linkedin: "linkedin.com/in/michaeltorres", tenure: "4 years", department: "Executive", priority: "medium", bestApproach: "Executive alignment on partnership vision. Focus on mid-market Microsoft transition projects." },
             { name: "Sarah Kim", role: "Director, Cloud Practice", email: "sarah@axelliant.com", linkedin: "linkedin.com/in/sarahkim", tenure: "2 years", department: "Cloud", priority: "medium", bestApproach: "Technical enablement and demo. Show Application Workspace as differentiator in cloud migration projects." }
@@ -1407,11 +1602,9 @@ const partners = [
         ],
         triggers: ["Intune Transition", "VDI Refresh", "Security Modernization"],
         verticals: ["Healthcare", "Finance", "Government"],
-        microsoft: true,
-        citrix: true,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: true, avd: true, intune: true,
         description: "Previder is Recast's 2025 Partner of the Year with proven execution. While EMEA-focused, their award-winning delivery of modern application access solutions demonstrates the power of the Recast partner model.",
+        notes: "",
         contacts: [
             { name: "Peter Hermeling", role: "VP Sales EMEA (Recast)", email: "peter@recastsoftware.com", linkedin: "linkedin.com/in/peterhermeling", tenure: "N/A", department: "Recast EMEA", priority: "high", bestApproach: "Leverage as reference partner for North American prospects. Case study on Dutch municipality deployment." },
             { name: "Jan de Vries", role: "CEO, Previder", email: "jan@previder.nl", linkedin: "linkedin.com/in/jandevries", tenure: "6 years", department: "Executive", priority: "medium", bestApproach: "Reference call for North American prospects. Share lessons from 4,000-user project delivery." }
@@ -1444,11 +1637,9 @@ const partners = [
         ],
         triggers: ["Intune Transition", "Cloud Migration"],
         verticals: ["Finance", "Healthcare"],
-        microsoft: true,
-        citrix: false,
-        avd: true,
-        intune: true,
+        microsoft: true, citrix: false, avd: true, intune: true,
         description: "Unica ICT Solutions won Newcomer of the Year for achieving strong results rapidly, including a major 4,000-user project. Their growth trajectory makes them a model for North American partner recruitment.",
+        notes: "",
         contacts: [
             { name: "Mark van den Berg", role: "Managing Director", email: "mark@unica.nl", linkedin: "linkedin.com/in/markvandenberg", tenure: "3 years", department: "Executive", priority: "medium", bestApproach: "Reference for rapid partner success story. Share playbook for North American replication." }
         ]
@@ -1480,11 +1671,9 @@ const partners = [
         ],
         triggers: ["Intune Transition", "Security Modernization"],
         verticals: ["Government", "Healthcare", "Finance"],
-        microsoft: true,
-        citrix: false,
-        avd: false,
-        intune: true,
+        microsoft: true, citrix: false, avd: false, intune: true,
         description: "Abacus IT AS was celebrated as Growth Partner of the Year with four-digit growth. Their rapid expansion demonstrates the scalability of the Recast partner model in new markets.",
+        notes: "",
         contacts: [
             { name: "Erik Hansen", role: "CEO", email: "erik@abacusit.no", linkedin: "linkedin.com/in/erikhansen", tenure: "5 years", department: "Executive", priority: "medium", bestApproach: "Growth story reference. Share expansion playbook and partner enablement best practices." }
         ]
@@ -1492,25 +1681,34 @@ const partners = [
 ];
 
 // ============================================
-// STATE MANAGEMENT
+// STATE
 // ============================================
-let currentFilters = {
-    type: 'all',
-    tier: 'all',
-    geo: 'all',
-    triggers: [],
-    verticals: [],
-    search: ''
-};
-
+let currentFilters = { type: 'all', tier: 'all', geo: 'all', triggers: [], verticals: [], search: '' };
 let currentTab = 'companies';
 let mapInstance = null;
 let markers = [];
 
+// Load notes from localStorage on init
+function loadNotes() {
+    partners.forEach(p => {
+        const saved = localStorage.getItem('recast_notes_' + p.id);
+        if (saved !== null) p.notes = saved;
+    });
+}
+
+function saveNote(partnerId, text) {
+    const partner = partners.find(p => p.id === partnerId);
+    if (partner) {
+        partner.notes = text;
+        localStorage.setItem('recast_notes_' + partnerId, text);
+    }
+}
+
 // ============================================
-// INITIALIZATION
+// INIT
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    loadNotes();
     renderPartnerCards(partners);
     renderContacts();
     initMap();
@@ -1519,7 +1717,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ============================================
-// RENDER FUNCTIONS
+// RENDER — PARTNER CARDS
 // ============================================
 function renderPartnerCards(data) {
     const container = document.getElementById('partnerCards');
@@ -1527,80 +1725,74 @@ function renderPartnerCards(data) {
 
     data.forEach((partner, index) => {
         const card = document.createElement('div');
-        card.className = 'partner-card fade-in';
+        card.className = 'partner-card';
         card.style.animationDelay = `${index * 0.05}s`;
         card.onclick = () => openModal(partner.id);
 
-        const tierClass = partner.tier === 'premier' ? 'tier-premier' : 
-                         partner.tier === 'value' ? 'tier-value' : 'tier-registered';
-
-        const fitClass = partner.fitScore >= 90 ? 'high' : 
-                        partner.fitScore >= 75 ? 'medium' : 'low';
-
-        const fitColor = partner.fitScore >= 90 ? 'var(--recast-accent)' : 
-                        partner.fitScore >= 75 ? 'var(--recast-orange)' : 'var(--recast-red)';
+        const tierClass = partner.tier === 'premier' ? 'premier' :
+                         partner.tier === 'value' ? 'value' : 'registered';
+        const tierPillClass = 'tier-pill-' + tierClass;
+        const fitClass = partner.fitScore >= 90 ? '' : partner.fitScore >= 75 ? 'medium' : 'low';
+        const fitBarClass = partner.fitScore >= 90 ? '' : partner.fitScore >= 75 ? 'medium' : 'low';
+        const fitColor = partner.fitScore >= 90 ? 'var(--blue)' : partner.fitScore >= 75 ? 'var(--orange)' : 'var(--red)';
+        const hasNotes = partner.notes && partner.notes.trim().length > 0;
 
         card.innerHTML = `
             <div class="partner-card-header">
-                <div class="partner-card-top">
-                    <div class="partner-logo-placeholder">${partner.name.charAt(0)}</div>
-                    <div class="partner-tier-badge ${tierClass}">${partner.tierLabel}</div>
-                </div>
-                <div class="partner-name">${partner.name}</div>
-                <div class="partner-type">${partner.type === 'msp_si' ? 'MSP / SI Partner' : 'ISV / Technology Partner'}</div>
+                <div class="partner-tile ${tierClass}">${partner.name.charAt(0)}</div>
+                <div class="partner-tier-pill ${tierPillClass}">${partner.tierLabel}</div>
             </div>
-            <div class="partner-card-body">
-                <div class="partner-meta">
-                    <div class="partner-meta-item">&#128205; ${partner.location.city}</div>
-                    <div class="partner-meta-item">&#128101; ${partner.employees}</div>
-                    <div class="partner-meta-item">&#128176; ${partner.revenueType}</div>
-                    ${partner.servicesRatio !== 'N/A — ISV' ? `<div class="partner-meta-item">&#128200; ${partner.servicesRatio}</div>` : ''}
-                </div>
-                <div class="partner-fit-score">
-                    <div class="fit-score-ring ${fitClass}">${partner.fitScore}</div>
-                    <div class="fit-score-details">
-                        <div class="fit-score-label">ICP Fit Score</div>
-                        <div class="fit-score-bar">
-                            <div class="fit-score-fill" style="width:${partner.fitScore}%; background:${fitColor}"></div>
-                        </div>
+            <div class="partner-name">${partner.name}</div>
+            <div class="caption" style="margin-bottom:10px;">${partner.type === 'msp_si' ? 'MSP / SI Partner' : 'ISV / Technology Partner'}</div>
+            <div class="partner-meta-row">
+                <span class="partner-meta-chip">&#128205; ${partner.location.city}</span>
+                <span class="partner-meta-chip">&#128101; ${partner.employees}</span>
+                <span class="partner-meta-chip">&#128176; ${partner.revenueType}</span>
+                ${partner.servicesRatio !== 'N/A — ISV' ? `<span class="partner-meta-chip">&#128200; ${partner.servicesRatio}</span>` : ''}
+            </div>
+            <div class="partner-fit">
+                <div class="fit-ring ${fitClass}" style="border-color:${fitColor};color:${fitColor}">${partner.fitScore}</div>
+                <div class="fit-details">
+                    <div class="fit-label">ICP fit score</div>
+                    <div class="fit-bar">
+                        <div class="fit-bar-fill ${fitBarClass}" style="width:${partner.fitScore}%;background:${fitColor}"></div>
                     </div>
                 </div>
-                <div class="partner-triggers">
-                    <div class="trigger-label">Active Triggers</div>
-                    <div class="trigger-tags">
-                        ${partner.triggers.map(t => `<span class="trigger-tag">${t}</span>`).join('')}
-                    </div>
-                </div>
-                <div class="partner-actions">
-                    <button class="partner-action-btn" onclick="event.stopPropagation(); viewContacts(${partner.id})">View Contacts</button>
-                    <button class="partner-action-btn" onclick="event.stopPropagation(); analyzePartner(${partner.id})">AI Analyze</button>
-                    <button class="partner-action-btn" onclick="event.stopPropagation(); saveToSheets(${partner.id})">Save</button>
-                </div>
+            </div>
+            <div class="partner-triggers">
+                <div class="label" style="margin-bottom:6px;">Active triggers</div>
+                ${partner.triggers.map(t => `<span class="trigger-pill">${t}</span>`).join('')}
+            </div>
+            ${hasNotes ? `<div class="note-indicator">&#128221; Notes saved</div>` : ''}
+            <div class="partner-actions">
+                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); viewContacts(${partner.id})">View contacts</button>
+                <button class="btn btn-primary btn-small" onclick="event.stopPropagation(); analyzePartner(${partner.id})">AI analyze</button>
+                <button class="btn btn-secondary btn-small" onclick="event.stopPropagation(); saveToSheets(${partner.id})">Save</button>
             </div>
         `;
-
         container.appendChild(card);
     });
 
-    document.getElementById('resultsBadge').textContent = `${data.length} Results`;
+    document.getElementById('resultsBadge').textContent = `${data.length} results`;
     updateAvgFitScore(data);
 }
 
+// ============================================
+// RENDER — CONTACTS
+// ============================================
 function renderContacts(filteredPartners = partners) {
     const container = document.getElementById('contactsGrid');
     container.innerHTML = '';
-
     let totalContacts = 0;
 
     filteredPartners.forEach(partner => {
         partner.contacts.forEach(contact => {
             totalContacts++;
-            const card = document.createElement('div');
-            card.className = 'contact-card';
+            const item = document.createElement('div');
+            item.className = 'contact-item';
+            const priorityColor = contact.priority === 'high' ? 'var(--blue)' : 'var(--gray-light)';
 
-            const priorityColor = contact.priority === 'high' ? 'var(--recast-accent)' : 'var(--recast-text-muted)';
-
-            card.innerHTML = `
+            item.innerHTML = `
                 <div class="contact-header">
                     <div class="contact-avatar">${contact.name.split(' ').map(n => n[0]).join('')}</div>
                     <div class="contact-info">
@@ -1608,88 +1800,62 @@ function renderContacts(filteredPartners = partners) {
                         <div class="contact-role">${contact.role}</div>
                         <div class="contact-company">${partner.name}</div>
                     </div>
-                    <div style="width:10px;height:10px;border-radius:50%;background:${priorityColor};box-shadow:0 0 8px ${priorityColor};"></div>
+                    <div style="width:10px;height:10px;border-radius:50%;background:${priorityColor};"></div>
                 </div>
                 <div class="contact-details">
-                    <div class="contact-detail">
+                    <div>
                         <div class="contact-detail-label">Department</div>
                         <div class="contact-detail-value">${contact.department}</div>
                     </div>
-                    <div class="contact-detail">
+                    <div>
                         <div class="contact-detail-label">Tenure</div>
                         <div class="contact-detail-value">${contact.tenure}</div>
                     </div>
-                    <div class="contact-detail">
+                    <div>
                         <div class="contact-detail-label">Priority</div>
                         <div class="contact-detail-value" style="color:${priorityColor}">${contact.priority.toUpperCase()}</div>
                     </div>
-                    <div class="contact-detail">
+                    <div>
                         <div class="contact-detail-label">Email</div>
-                        <div class="contact-detail-value" style="font-size:10px;">${contact.email}</div>
+                        <div class="contact-detail-value" style="font-size:11px;word-break:break-all;">${contact.email}</div>
                     </div>
                 </div>
-                <div style="margin-top:10px;padding:10px;background:rgba(0,212,170,0.05);border-radius:8px;border:1px solid rgba(0,212,170,0.1);">
-                    <div style="font-size:10px;color:var(--recast-text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Best Approach</div>
-                    <div style="font-size:12px;color:var(--recast-text);line-height:1.5;">${contact.bestApproach}</div>
+                <div class="contact-approach">
+                    <div class="contact-approach-label">Best approach</div>
+                    <div class="contact-approach-text">${contact.bestApproach}</div>
                 </div>
-                <div class="contact-actions">
-                    <a href="mailto:${contact.email}" class="contact-action">&#9993; Email</a>
-                    <a href="https://${contact.linkedin}" target="_blank" class="contact-action">&#128279; LinkedIn</a>
-                    <button class="contact-action" onclick="saveContactToSheets('${partner.name}', '${contact.name}', '${contact.email}', '${contact.role}', '${contact.linkedin}')">&#128190; Save</button>
+                <div class="contact-actions-row">
+                    <a href="mailto:${contact.email}" class="btn btn-secondary btn-small">Email</a>
+                    <a href="https://${contact.linkedin}" target="_blank" class="btn btn-secondary btn-small">LinkedIn</a>
+                    <button class="btn btn-primary btn-small" onclick="saveContactToSheets('${partner.name}', '${contact.name}', '${contact.email}', '${contact.role}', '${contact.linkedin}')">Save</button>
                 </div>
             `;
-
-            container.appendChild(card);
+            container.appendChild(item);
         });
     });
 
-    document.getElementById('contactsBadge').textContent = `${totalContacts} Contacts`;
+    document.getElementById('contactsBadge').textContent = `${totalContacts} contacts`;
     document.getElementById('statContacts').textContent = totalContacts;
 }
 
+// ============================================
+// RENDER — AI INSIGHTS
+// ============================================
 function renderAIInsights() {
     const container = document.getElementById('aiInsights');
-
     const insights = [
-        {
-            icon: '&#128200;',
-            title: 'Pipeline Opportunity',
-            body: 'Nerdio + Recast co-sell motion is generating mutual pipeline. ICP overlap is 99% — both target 5K+ employee Citrix-heavy enterprises exploring AVD. Recommend accelerating joint SKU development.'
-        },
-        {
-            icon: '&#9888;',
-            title: 'Trigger Event Alert',
-            body: 'Ivanti Workspace Control (RES) EOL on Dec 31, 2026 is creating urgency. 3 partners (Insight, Infosys, System Center Dudes) have active RES replacement pipelines. Prioritize enablement.'
-        },
-        {
-            icon: '&#127942;',
-            title: 'Partner of the Year Pattern',
-            body: 'Previder (2025 Partner of the Year) achieved success through deep technical knowledge + successful projects + shared commitment. Replicate this model with North American Premier targets.'
-        },
-        {
-            icon: '&#128241;',
-            title: 'ARM Compute Opportunity',
-            body: 'Qualcomm Snapdragon ARM enterprise adoption is stalled by app compatibility — Recast's core value prop. This partnership could unlock a new $2B+ compute category. Escalate to executive level.'
-        },
-        {
-            icon: '&#128101;',
-            title: 'Contact Strategy',
-            body: '48 target contacts identified across 12 partners. 18 are HIGH priority (VP+ level). Focus outbound on Microsoft Practice leaders and Partner Alliances directors — highest conversion rate in data.'
-        },
-        {
-            icon: '&#128176;',
-            title: 'Revenue Projection',
-            body: 'Premier partners run 4:1 to 6:1 services-to-license ratio. With 2 Premier partners at $1M+ commitment, projected 18-month services multiplier is $8-12M in partner services revenue.'
-        }
+        { icon: '&#128200;', title: 'Pipeline opportunity', body: 'Nerdio + Recast co-sell motion is generating mutual pipeline. ICP overlap is 99% — both target 5K+ employee Citrix-heavy enterprises exploring AVD. Recommend accelerating joint SKU development.' },
+        { icon: '&#9888;', title: 'Trigger event alert', body: 'Ivanti Workspace Control (RES) EOL on Dec 31, 2026 is creating urgency. 3 partners (Insight, Infosys, System Center Dudes) have active RES replacement pipelines. Prioritize enablement.' },
+        { icon: '&#127942;', title: 'Partner of the Year pattern', body: 'Previder (2025 Partner of the Year) achieved success through deep technical knowledge + successful projects + shared commitment. Replicate this model with North American Premier targets.' },
+        { icon: '&#128241;', title: 'ARM compute opportunity', body: "Qualcomm Snapdragon ARM enterprise adoption is stalled by app compatibility — Recast's core value prop. This partnership could unlock a new $2B+ compute category. Escalate to executive level." },
+        { icon: '&#128101;', title: 'Contact strategy', body: '48 target contacts identified across 12 partners. 18 are HIGH priority (VP+ level). Focus outbound on Microsoft Practice leaders and Partner Alliances directors — highest conversion rate in data.' },
+        { icon: '&#128176;', title: 'Revenue projection', body: 'Premier partners run 4:1 to 6:1 services-to-license ratio. With 2 Premier partners at $1M+ commitment, projected 18-month services multiplier is $8-12M in partner services revenue.' }
     ];
 
     container.innerHTML = insights.map(insight => `
-        <div class="ai-insight-card">
-            <div class="ai-insight-header">
-                <div class="ai-insight-icon">${insight.icon}</div>
-                <div class="ai-insight-title">${insight.title}</div>
-            </div>
-            <div class="ai-insight-body">${insight.body}</div>
+        <div class="ai-item">
+            <div class="ai-item-title"><span>${insight.icon}</span> ${insight.title}</div>
+            <div class="ai-item-body">${insight.body}</div>
         </div>
     `).join('');
 }
@@ -1698,47 +1864,40 @@ function renderAIInsights() {
 // MAP
 // ============================================
 function initMap() {
-    mapInstance = L.map('partnerMap').setView([40, -95], 3);
-
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    mapInstance = L.map('partnerMap').setView([42, -75], 3);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; OpenStreetMap &copy; CARTO',
         subdomains: 'abcd',
         maxZoom: 19
     }).addTo(mapInstance);
-
     updateMapMarkers(partners);
 }
 
 function updateMapMarkers(data) {
     markers.forEach(m => mapInstance.removeLayer(m));
     markers = [];
-
     data.forEach(partner => {
-        const color = partner.tier === 'premier' ? '#FFD700' : 
-                     partner.tier === 'value' ? '#00D4AA' : '#5A6E8A';
-
+        const color = partner.tier === 'premier' ? '#FF9500' :
+                     partner.tier === 'value' ? '#007AFF' : '#86868B';
         const marker = L.circleMarker([partner.location.lat, partner.location.lng], {
-            radius: 8 + (partner.fitScore / 15),
+            radius: 7 + (partner.fitScore / 18),
             fillColor: color,
             color: color,
             weight: 2,
             opacity: 0.8,
-            fillOpacity: 0.6
+            fillOpacity: 0.5
         }).addTo(mapInstance);
-
         marker.bindPopup(`
-            <div style="font-family:Inter,sans-serif;min-width:200px;">
-                <div style="font-weight:700;font-size:14px;margin-bottom:4px;">${partner.name}</div>
-                <div style="font-size:12px;color:#666;margin-bottom:8px;">${partner.tierLabel}</div>
-                <div style="font-size:11px;">Fit Score: <strong>${partner.fitScore}%</strong></div>
-                <div style="font-size:11px;">Type: ${partner.type === 'msp_si' ? 'MSP/SI' : 'ISV/Tech'}</div>
+            <div style="font-family:-apple-system,sans-serif;min-width:180px;">
+                <div style="font-weight:700;font-size:14px;margin-bottom:2px;">${partner.name}</div>
+                <div style="font-size:12px;color:#666;margin-bottom:6px;">${partner.tierLabel}</div>
+                <div style="font-size:12px;">Fit: <strong>${partner.fitScore}%</strong></div>
+                <div style="font-size:12px;">${partner.type === 'msp_si' ? 'MSP/SI' : 'ISV/Tech'}</div>
             </div>
         `);
-
         markers.push(marker);
     });
-
-    document.getElementById('mapBadge').textContent = `${data.length} Partners Mapped`;
+    document.getElementById('mapBadge').textContent = `${data.length} partners mapped`;
 }
 
 // ============================================
@@ -1747,7 +1906,6 @@ function updateMapMarkers(data) {
 function applyFilters() {
     currentFilters.type = document.getElementById('filterType').value;
     currentFilters.geo = document.getElementById('filterGeo').value;
-
     const filtered = filterPartners();
     renderPartnerCards(filtered);
     updateMapMarkers(filtered);
@@ -1755,7 +1913,7 @@ function applyFilters() {
 }
 
 function toggleTier(el) {
-    document.querySelectorAll('.filter-chip[data-tier]').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.chip[data-tier]').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
     currentFilters.tier = el.dataset.tier;
     applyFilters();
@@ -1764,22 +1922,16 @@ function toggleTier(el) {
 function toggleTrigger(el) {
     el.classList.toggle('active');
     const trigger = el.dataset.trigger;
-    if (el.classList.contains('active')) {
-        currentFilters.triggers.push(trigger);
-    } else {
-        currentFilters.triggers = currentFilters.triggers.filter(t => t !== trigger);
-    }
+    if (el.classList.contains('active')) currentFilters.triggers.push(trigger);
+    else currentFilters.triggers = currentFilters.triggers.filter(t => t !== trigger);
     applyFilters();
 }
 
 function toggleVertical(el) {
     el.classList.toggle('active');
     const vertical = el.dataset.vertical;
-    if (el.classList.contains('active')) {
-        currentFilters.verticals.push(vertical);
-    } else {
-        currentFilters.verticals = currentFilters.verticals.filter(v => v !== vertical);
-    }
+    if (el.classList.contains('active')) currentFilters.verticals.push(vertical);
+    else currentFilters.verticals = currentFilters.verticals.filter(v => v !== vertical);
     applyFilters();
 }
 
@@ -1789,25 +1941,20 @@ function filterPartners() {
         if (currentFilters.tier !== 'all' && p.tier !== currentFilters.tier) return false;
         if (currentFilters.geo !== 'all' && p.location.region !== currentFilters.geo) return false;
         if (currentFilters.triggers.length > 0) {
-            const hasTrigger = currentFilters.triggers.some(t => 
-                p.triggers.some(pt => pt.toLowerCase().includes(t))
-            );
+            const hasTrigger = currentFilters.triggers.some(t => p.triggers.some(pt => pt.toLowerCase().includes(t)));
             if (!hasTrigger) return false;
         }
         if (currentFilters.verticals.length > 0) {
-            const hasVertical = currentFilters.verticals.some(v => 
-                p.verticals.some(pv => pv.toLowerCase().includes(v))
-            );
+            const hasVertical = currentFilters.verticals.some(v => p.verticals.some(pv => pv.toLowerCase().includes(v)));
             if (!hasVertical) return false;
         }
         if (currentFilters.search) {
-            const search = currentFilters.search.toLowerCase();
-            const match = p.name.toLowerCase().includes(search) ||
-                         p.focus.some(f => f.toLowerCase().includes(search)) ||
-                         p.triggers.some(t => t.toLowerCase().includes(search)) ||
-                         p.verticals.some(v => v.toLowerCase().includes(search)) ||
-                         p.description.toLowerCase().includes(search);
-            if (!match) return false;
+            const s = currentFilters.search.toLowerCase();
+            return p.name.toLowerCase().includes(s) ||
+                p.focus.some(f => f.toLowerCase().includes(s)) ||
+                p.triggers.some(t => t.toLowerCase().includes(s)) ||
+                p.verticals.some(v => v.toLowerCase().includes(s)) ||
+                p.description.toLowerCase().includes(s);
         }
         return true;
     });
@@ -1823,31 +1970,22 @@ function handleSearch(e) {
 function quickFilter(type) {
     document.getElementById('searchInput').value = '';
     currentFilters.search = '';
-
-    const filterMap = {
-        'microsoft': () => { currentFilters.type = 'all'; },
-        'citrix': () => { currentFilters.triggers = ['citrix']; },
-        'avd': () => { currentFilters.triggers = ['avd']; },
-        'intune': () => { currentFilters.triggers = ['intune']; },
-        'premier': () => { currentFilters.tier = 'premier'; }
-    };
-
-    // Reset other filters
     currentFilters.triggers = [];
     currentFilters.verticals = [];
     currentFilters.type = 'all';
     currentFilters.tier = 'all';
 
-    if (filterMap[type]) filterMap[type]();
+    const map = { 'microsoft': () => {}, 'citrix': () => { currentFilters.triggers = ['citrix']; },
+        'avd': () => { currentFilters.triggers = ['avd']; }, 'intune': () => { currentFilters.triggers = ['intune']; },
+        'premier': () => { currentFilters.tier = 'premier'; } };
+    if (map[type]) map[type]();
 
-    // Update UI
-    document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-    document.querySelectorAll('.filter-chip[data-tier="all"]').forEach(c => c.classList.add('active'));
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    document.querySelectorAll('.chip[data-tier="all"]').forEach(c => c.classList.add('active'));
     document.getElementById('filterType').value = 'all';
     document.getElementById('filterGeo').value = 'all';
-
     applyFilters();
-    showToast(`Filtered: ${type.replace('_', ' ').toUpperCase()}`, 'info');
+    showToast(`Filtered: ${type}`, 'info');
 }
 
 // ============================================
@@ -1858,27 +1996,22 @@ function switchTab(el) {
     el.classList.add('active');
     currentTab = el.dataset.tab;
 
-    const cardsSection = document.querySelector('.results-grid').parentElement;
-    const contactsSection = document.getElementById('contactsSection');
-    const mapSection = document.querySelector('.map-section');
-    const aiPanel = document.getElementById('aiPanel');
+    const cards = document.getElementById('partnerCards').parentElement;
+    const mapSec = document.querySelector('.map-card');
+    const contacts = document.getElementById('contactsSection');
+    const ai = document.getElementById('aiPanel');
+    const stats = document.querySelector('.stats-row');
 
     if (currentTab === 'companies') {
-        cardsSection.style.display = 'block';
-        mapSection.style.display = 'block';
-        contactsSection.style.display = 'none';
-        aiPanel.classList.remove('active');
+        cards.style.display = 'block'; mapSec.style.display = 'block'; contacts.classList.remove('active');
+        ai.classList.remove('active'); stats.style.display = 'grid';
     } else if (currentTab === 'contacts') {
-        cardsSection.style.display = 'none';
-        mapSection.style.display = 'none';
-        contactsSection.style.display = 'block';
-        aiPanel.classList.remove('active');
+        cards.style.display = 'none'; mapSec.style.display = 'none'; contacts.classList.add('active');
+        ai.classList.remove('active'); stats.style.display = 'none';
         renderContacts(filterPartners());
     } else if (currentTab === 'insights') {
-        cardsSection.style.display = 'none';
-        mapSection.style.display = 'none';
-        contactsSection.style.display = 'none';
-        aiPanel.classList.add('active');
+        cards.style.display = 'none'; mapSec.style.display = 'none'; contacts.classList.remove('active');
+        ai.classList.add('active'); stats.style.display = 'grid';
     }
 }
 
@@ -1890,77 +2023,70 @@ function openModal(partnerId) {
     if (!partner) return;
 
     document.getElementById('modalTitle').textContent = partner.name;
-
-    const tierClass = partner.tier === 'premier' ? 'tier-premier' : 
-                     partner.tier === 'value' ? 'tier-value' : 'tier-registered';
+    const tierPillClass = 'tier-pill-' + partner.tier;
 
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-section">
             <div class="modal-section-title">Overview</div>
-            <p style="font-size:14px;color:var(--recast-text-muted);line-height:1.7;margin-bottom:16px;">${partner.description}</p>
-            <div class="modal-grid">
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Tier</div>
-                    <div class="modal-info-value"><span class="partner-tier-badge ${tierClass}" style="display:inline-block;margin-top:4px;">${partner.tierLabel}</span></div>
+            <p class="body-text" style="margin-bottom:16px;">${partner.description}</p>
+            <div class="info-grid">
+                <div class="info-cell">
+                    <div class="info-label">Tier</div>
+                    <div class="info-value"><span class="partner-tier-pill ${tierPillClass}" style="display:inline-block;margin-top:4px;">${partner.tierLabel}</span></div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Type</div>
-                    <div class="modal-info-value">${partner.type === 'msp_si' ? 'MSP / SI Partner' : 'ISV / Technology Partner'}</div>
+                <div class="info-cell">
+                    <div class="info-label">Type</div>
+                    <div class="info-value">${partner.type === 'msp_si' ? 'MSP / SI Partner' : 'ISV / Technology Partner'}</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Location</div>
-                    <div class="modal-info-value">${partner.location.city}</div>
+                <div class="info-cell">
+                    <div class="info-label">Location</div>
+                    <div class="info-value">${partner.location.city}</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Employees</div>
-                    <div class="modal-info-value">${partner.employees}</div>
+                <div class="info-cell">
+                    <div class="info-label">Employees</div>
+                    <div class="info-value">${partner.employees}</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Revenue Model</div>
-                    <div class="modal-info-value">${partner.revenueType}</div>
+                <div class="info-cell">
+                    <div class="info-label">Revenue model</div>
+                    <div class="info-value">${partner.revenueType}</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Services Ratio</div>
-                    <div class="modal-info-value">${partner.servicesRatio}</div>
+                <div class="info-cell">
+                    <div class="info-label">Services ratio</div>
+                    <div class="info-value">${partner.servicesRatio}</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">ICP Fit Score</div>
-                    <div class="modal-info-value" style="color:var(--recast-accent);font-size:18px;">${partner.fitScore}%</div>
+                <div class="info-cell">
+                    <div class="info-label">ICP fit score</div>
+                    <div class="info-value" style="color:var(--blue);font-size:18px;">${partner.fitScore}%</div>
                 </div>
-                <div class="modal-info-item">
-                    <div class="modal-info-label">Focus Areas</div>
-                    <div class="modal-info-value">${partner.focus.join(', ')}</div>
+                <div class="info-cell">
+                    <div class="info-label">Focus areas</div>
+                    <div class="info-value">${partner.focus.join(', ')}</div>
                 </div>
             </div>
         </div>
 
         <div class="modal-section">
-            <div class="modal-section-title">Green Flags — Pursue</div>
-            ${partner.greenFlags.map(f => `
-                <div class="green-flag">
-                    <span class="flag-icon">&#9989;</span>
-                    <span>${f}</span>
-                </div>
-            `).join('')}
+            <div class="modal-section-title">Green flags — pursue</div>
+            ${partner.greenFlags.map(f => `<div class="flag-item flag-green"><span class="flag-icon">&#9989;</span><span>${f}</span></div>`).join('')}
         </div>
 
         ${partner.redFlags.length > 0 ? `
         <div class="modal-section">
-            <div class="modal-section-title">Red Flags — Caution</div>
-            ${partner.redFlags.map(f => `
-                <div class="red-flag">
-                    <span class="flag-icon">&#9888;</span>
-                    <span>${f}</span>
-                </div>
-            `).join('')}
-        </div>
-        ` : ''}
+            <div class="modal-section-title">Red flags — caution</div>
+            ${partner.redFlags.map(f => `<div class="flag-item flag-red"><span class="flag-icon">&#9888;</span><span>${f}</span></div>`).join('')}
+        </div>` : ''}
 
         <div class="modal-section">
-            <div class="modal-section-title">Target Contacts (${partner.contacts.length})</div>
+            <div class="modal-section-title">Notes</div>
+            <textarea class="notes-area" id="partnerNotes-${partner.id}" placeholder="Enter your notes about this partner..." onblur="saveNote(${partner.id}, this.value)">${partner.notes}</textarea>
+            <div class="caption" style="margin-top:6px;">Notes are saved locally and included in Sheets export.</div>
+        </div>
+
+        <div class="modal-section">
+            <div class="modal-section-title">Target contacts (${partner.contacts.length})</div>
             <div class="contacts-grid" style="margin-top:12px;">
                 ${partner.contacts.map(contact => `
-                    <div class="contact-card">
+                    <div class="contact-item">
                         <div class="contact-header">
                             <div class="contact-avatar">${contact.name.split(' ').map(n => n[0]).join('')}</div>
                             <div class="contact-info">
@@ -1969,30 +2095,18 @@ function openModal(partnerId) {
                             </div>
                         </div>
                         <div class="contact-details">
-                            <div class="contact-detail">
-                                <div class="contact-detail-label">Department</div>
-                                <div class="contact-detail-value">${contact.department}</div>
-                            </div>
-                            <div class="contact-detail">
-                                <div class="contact-detail-label">Tenure</div>
-                                <div class="contact-detail-value">${contact.tenure}</div>
-                            </div>
-                            <div class="contact-detail">
-                                <div class="contact-detail-label">Priority</div>
-                                <div class="contact-detail-value" style="color:${contact.priority === 'high' ? 'var(--recast-accent)' : 'var(--recast-text-muted)'};">${contact.priority.toUpperCase()}</div>
-                            </div>
-                            <div class="contact-detail">
-                                <div class="contact-detail-label">Email</div>
-                                <div class="contact-detail-value" style="font-size:10px;">${contact.email}</div>
-                            </div>
+                            <div><div class="contact-detail-label">Department</div><div class="contact-detail-value">${contact.department}</div></div>
+                            <div><div class="contact-detail-label">Tenure</div><div class="contact-detail-value">${contact.tenure}</div></div>
+                            <div><div class="contact-detail-label">Priority</div><div class="contact-detail-value" style="color:${contact.priority === 'high' ? 'var(--blue)' : 'var(--gray-light)'}">${contact.priority.toUpperCase()}</div></div>
+                            <div><div class="contact-detail-label">Email</div><div class="contact-detail-value" style="font-size:11px;word-break:break-all;">${contact.email}</div></div>
                         </div>
-                        <div style="margin-top:10px;padding:10px;background:rgba(0,212,170,0.05);border-radius:8px;border:1px solid rgba(0,212,170,0.1);">
-                            <div style="font-size:10px;color:var(--recast-text-dim);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;">Best Approach</div>
-                            <div style="font-size:12px;color:var(--recast-text);line-height:1.5;">${contact.bestApproach}</div>
+                        <div class="contact-approach">
+                            <div class="contact-approach-label">Best approach</div>
+                            <div class="contact-approach-text">${contact.bestApproach}</div>
                         </div>
-                        <div class="contact-actions">
-                            <a href="mailto:${contact.email}" class="contact-action">&#9993; Email</a>
-                            <a href="https://${contact.linkedin}" target="_blank" class="contact-action">&#128279; LinkedIn</a>
+                        <div class="contact-actions-row">
+                            <a href="mailto:${contact.email}" class="btn btn-secondary btn-small">Email</a>
+                            <a href="https://${contact.linkedin}" target="_blank" class="btn btn-secondary btn-small">LinkedIn</a>
                         </div>
                     </div>
                 `).join('')}
@@ -2020,12 +2134,10 @@ function viewContacts(partnerId) {
 }
 
 function analyzePartner(partnerId) {
-    const partner = partners.find(p => p.id === partnerId);
-    showToast(`AI analyzing ${partner.name}...`, 'info');
-
+    showToast('Analyzing partner...', 'info');
     setTimeout(() => {
         switchTab(document.querySelector('[data-tab="insights"]'));
-        showToast(`Analysis complete for ${partner.name}`, 'success');
+        showToast('Analysis complete.', 'ok');
     }, 1500);
 }
 
@@ -2034,45 +2146,73 @@ function saveToSheets(partnerId) {
     savePartnerToSheets(partner);
 }
 
+// ============================================
+// GOOGLE SHEETS EXPORT — FULL SCHEMA
+// ============================================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
+
+function buildPartnerPayload(partner) {
+    return {
+        name: partner.name,
+        type: partner.type,
+        tier: partner.tierLabel,
+        location: partner.location.city,
+        region: partner.location.region,
+        fitScore: partner.fitScore,
+        revenueType: partner.revenueType,
+        servicesRatio: partner.servicesRatio,
+        employees: partner.employees,
+        size: partner.size,
+        focus: partner.focus.join(', '),
+        triggers: partner.triggers.join(', '),
+        verticals: partner.verticals.join(', '),
+        description: partner.description,
+        notes: partner.notes || '',
+        greenFlags: partner.greenFlags.join(' | '),
+        redFlags: partner.redFlags.join(' | '),
+        microsoft: partner.microsoft,
+        citrix: partner.citrix,
+        avd: partner.avd,
+        intune: partner.intune
+    };
+}
+
+function buildContactPayload(partner, contact) {
+    return {
+        company: partner.name,
+        companyId: partner.id,
+        name: contact.name,
+        role: contact.role,
+        email: contact.email,
+        linkedin: contact.linkedin,
+        tenure: contact.tenure,
+        department: contact.department,
+        priority: contact.priority,
+        bestApproach: contact.bestApproach
+    };
+}
+
 function savePartnerToSheets(partner) {
     const data = {
         action: 'savePartner',
         timestamp: new Date().toISOString(),
-        partner: {
-            name: partner.name,
-            type: partner.type,
-            tier: partner.tierLabel,
-            location: partner.location.city,
-            fitScore: partner.fitScore,
-            revenueType: partner.revenueType,
-            servicesRatio: partner.servicesRatio,
-            focus: partner.focus.join(', '),
-            triggers: partner.triggers.join(', '),
-            verticals: partner.verticals.join(', '),
-            description: partner.description
-        }
+        partner: buildPartnerPayload(partner),
+        contacts: partner.contacts.map(c => buildContactPayload(partner, c))
     };
-
-    // Call Google Apps Script Web App
     callAppsScript(data);
-    showToast(`Saving ${partner.name} to Google Sheets...`, 'info');
+    showToast(`Saving ${partner.name} to Sheets...`, 'info');
 }
 
 function saveContactToSheets(company, name, email, role, linkedin) {
+    const partner = partners.find(p => p.name === company);
+    const contact = partner ? partner.contacts.find(c => c.name === name) : null;
     const data = {
         action: 'saveContact',
         timestamp: new Date().toISOString(),
-        contact: {
-            company: company,
-            name: name,
-            email: email,
-            role: role,
-            linkedin: linkedin
-        }
+        contact: contact ? buildContactPayload(partner, contact) : { company, name, email, role, linkedin }
     };
-
     callAppsScript(data);
-    showToast(`Saving contact ${name} to Google Sheets...`, 'info');
+    showToast(`Saving contact ${name}...`, 'info');
 }
 
 function exportToSheets() {
@@ -2080,45 +2220,16 @@ function exportToSheets() {
     const data = {
         action: 'exportAll',
         timestamp: new Date().toISOString(),
-        partners: filtered.map(p => ({
-            name: p.name,
-            type: p.type,
-            tier: p.tierLabel,
-            location: p.location.city,
-            fitScore: p.fitScore,
-            revenueType: p.revenueType,
-            focus: p.focus.join(', '),
-            triggers: p.triggers.join(', '),
-            verticals: p.verticals.join(', ')
-        })),
-        contacts: filtered.flatMap(p => p.contacts.map(c => ({
-            company: p.name,
-            name: c.name,
-            role: c.role,
-            email: c.email,
-            linkedin: c.linkedin,
-            tenure: c.tenure,
-            department: c.department,
-            priority: c.priority,
-            bestApproach: c.bestApproach
-        })))
+        partners: filtered.map(p => buildPartnerPayload(p)),
+        contacts: filtered.flatMap(p => p.contacts.map(c => buildContactPayload(p, c)))
     };
-
     callAppsScript(data);
-    showToast(`Exporting ${filtered.length} partners to Google Sheets...`, 'info');
+    showToast(`Exporting ${filtered.length} partners to Sheets...`, 'info');
 }
 
-// ============================================
-// GOOGLE APPS SCRIPT INTEGRATION
-// ============================================
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec';
-
 function callAppsScript(data) {
-    // In production, this would call the actual Google Apps Script Web App
-    // For demo, we simulate the call
-    console.log('Calling Apps Script with:', data);
-
-    // Uncomment for production:
+    console.log('Sheets payload:', data);
+    // PRODUCTION: uncomment below and set APPS_SCRIPT_URL
     /*
     fetch(APPS_SCRIPT_URL, {
         method: 'POST',
@@ -2126,29 +2237,22 @@ function callAppsScript(data) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
     })
-    .then(() => showToast('Saved to Google Sheets!', 'success'))
-    .catch(err => {
-        console.error('Error:', err);
-        showToast('Error saving to Sheets', 'error');
-    });
+    .then(() => showToast('Saved to Google Sheets.', 'ok'))
+    .catch(err => { console.error(err); showToast('Error saving to Sheets.', 'bad'); });
     */
-
-    // Simulate success for demo
-    setTimeout(() => {
-        showToast('Saved to Google Sheets!', 'success');
-    }, 1000);
+    // DEMO: simulate success
+    setTimeout(() => showToast('Saved to Google Sheets.', 'ok'), 800);
 }
 
 // ============================================
-// AI DEEP SEARCH
+// AI SEARCH
 // ============================================
 function runAISearch() {
-    showToast('Initiating AI deep search across partner ecosystem...', 'info');
-
+    showToast('Initiating AI deep search...', 'info');
     setTimeout(() => {
         switchTab(document.querySelector('[data-tab="insights"]'));
-        showToast('AI analysis complete. 6 strategic insights generated.', 'success');
-    }, 2000);
+        showToast('AI analysis complete. 6 insights generated.', 'ok');
+    }, 1800);
 }
 
 // ============================================
@@ -2157,8 +2261,7 @@ function runAISearch() {
 function updateStats(data = partners) {
     const premierCount = data.filter(p => p.tier === 'premier').length;
     const totalContacts = data.reduce((sum, p) => sum + p.contacts.length, 0);
-    const pipelineValue = data.length * 350000; // Estimated
-
+    const pipelineValue = data.length * 350000;
     document.getElementById('statTotal').textContent = data.length;
     document.getElementById('statPremier').textContent = premierCount;
     document.getElementById('statPipeline').textContent = `$${(pipelineValue / 1000000).toFixed(1)}M`;
@@ -2166,64 +2269,45 @@ function updateStats(data = partners) {
 }
 
 function updateAvgFitScore(data) {
-    const avg = Math.round(data.reduce((sum, p) => sum + p.fitScore, 0) / data.length);
+    const avg = Math.round(data.reduce((sum, p) => sum + p.fitScore, 0) / data.length) || 0;
     document.getElementById('avgFitScore').textContent = `${avg}%`;
-    document.querySelector('.icp-score-fill').style.width = `${avg}%`;
+    document.querySelector('.icp-bar-fill').style.width = `${avg}%`;
 }
 
 // ============================================
 // TOAST
 // ============================================
 function showToast(message, type = 'info') {
-    const container = document.getElementById('toastContainer');
+    const stack = document.getElementById('toastStack');
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
-
-    const icons = { success: '&#9989;', error: '&#10060;', info: '&#128161;' };
-    toast.innerHTML = `<span>${icons[type]}</span> ${message}`;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.opacity = '0';
-        toast.style.transform = 'translateX(100%)';
-        setTimeout(() => toast.remove(), 300);
-    }, 4000);
+    const icons = { ok: '&#9989;', bad: '&#10060;', info: '&#128161;' };
+    toast.innerHTML = `<span>${icons[type] || icons.info}</span> ${message}`;
+    stack.appendChild(toast);
+    setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 300); }, 4000);
 }
 
 // ============================================
-// LLM API INTEGRATION (KIMI)
+// KIMI LLM API
 // ============================================
 async function callKimiAPI(prompt, context = '') {
     const KIMI_API_KEY = 'YOUR_KIMI_API_KEY';
     const KIMI_API_URL = 'https://api.moonshot.cn/v1/chat/completions';
-
     try {
         const response = await fetch(KIMI_API_URL, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${KIMI_API_KEY}`
-            },
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${KIMI_API_KEY}` },
             body: JSON.stringify({
                 model: 'moonshot-v1-8k',
                 messages: [
-                    {
-                        role: 'system',
-                        content: `You are a partner intelligence analyst for Recast Software. You analyze partner profiles, ICP fit, and provide strategic recommendations. Recast's ICP: 1,000-10,000 employees, Citrix/VDI estates, SCCM->Intune transitions, EUC/Digital Workplace buyers. Partner types: MSP/SI (delivery) and ISV/Tech (co-sell).`
-                    },
-                    {
-                        role: 'user',
-                        content: `${context}
+                    { role: 'system', content: 'You are a partner intelligence analyst for Recast Software. Analyze partner profiles, ICP fit, and provide strategic recommendations. Recast ICP: 1,000-10,000 employees, Citrix/VDI estates, SCCM->Intune transitions, EUC/Digital Workplace buyers. Partner types: MSP/SI (delivery) and ISV/Tech (co-sell).' },
+                    { role: 'user', content: `${context}
 
-${prompt}`
-                    }
+${prompt}` }
                 ],
-                temperature: 0.3,
-                max_tokens: 2000
+                temperature: 0.3, max_tokens: 2000
             })
         });
-
         const data = await response.json();
         return data.choices[0].message.content;
     } catch (error) {
@@ -2232,32 +2316,27 @@ ${prompt}`
     }
 }
 
-// Example: Deep analyze a partner with Kimi
 async function deepAnalyzeWithKimi(partnerId) {
     const partner = partners.find(p => p.id === partnerId);
     const context = `Partner: ${partner.name}
 Type: ${partner.type}
 Tier: ${partner.tierLabel}
-Fit Score: ${partner.fitScore}
+Fit: ${partner.fitScore}
 Focus: ${partner.focus.join(', ')}
 Triggers: ${partner.triggers.join(', ')}
-Verticals: ${partner.verticals.join(', ')}`;
-
+Verticals: ${partner.verticals.join(', ')}
+Notes: ${partner.notes || 'None'}`;
     showToast('Running deep AI analysis...', 'info');
-
     const analysis = await callKimiAPI(
-        'Analyze this partner profile for Recast Software. Provide: 1) ICP fit assessment, 2) Revenue potential, 3) Recommended engagement strategy, 4) Risk factors, 5) Next best actions.',
+        'Analyze this partner for Recast. Provide: 1) ICP fit assessment, 2) Revenue potential, 3) Engagement strategy, 4) Risk factors, 5) Next best actions.',
         context
     );
-
-    // Display analysis in modal
     document.getElementById('modalTitle').textContent = `AI Analysis: ${partner.name}`;
     document.getElementById('modalBody').innerHTML = `
         <div class="modal-section">
-            <div class="modal-section-title">Deep AI Analysis</div>
-            <div style="white-space:pre-wrap;font-size:13px;line-height:1.8;color:var(--recast-text);background:var(--recast-surface-light);padding:20px;border-radius:12px;border:1px solid var(--recast-border);">${analysis}</div>
-        </div>
-    `;
+            <div class="modal-section-title">Deep AI analysis</div>
+            <div style="white-space:pre-wrap;font-size:14px;line-height:1.7;color:var(--ink);background:var(--card);padding:20px;border-radius:14px;">${analysis}</div>
+        </div>`;
     document.getElementById('partnerModal').classList.add('active');
 }
     </script>
